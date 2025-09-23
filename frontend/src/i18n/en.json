@@ -1,0 +1,9 @@
+{
+  "login": "Login",
+  "signup": "Sign Up",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "welcome_customer": "Welcome, Customer!",
+  "welcome_pharmacy": "Welcome, Pharmacy!",
+  "welcome_delivery": "Welcome, Delivery Partner!"
+}

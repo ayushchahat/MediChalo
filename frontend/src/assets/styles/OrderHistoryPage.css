@@ -1,0 +1,77 @@
+.order-history-container {
+    padding: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.order-history-container h1 {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+.filter-controls {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.filter-controls select {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.order-card {
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--background-color);
+}
+.order-card-header h3 { margin: 0; font-size: 1.1rem; }
+.order-card-header p { margin: 0; font-size: 0.9rem; opacity: 0.7; }
+.status-tag { /* Uses same styles as badges */
+    padding: 0.3rem 0.8rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+.delivered { background-color: #6b7280; }
+.cancelled, .rejected { background-color: #ef4444; }
+
+.order-card-body { padding: 1rem 1.5rem; }
+.order-card-body h4 { margin-top: 0; }
+.order-card-body ul { padding-left: 20px; }
+
+.order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--background-color);
+}
+.total-amount { font-weight: bold; font-size: 1.1rem; }
+.invoice-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.invoice-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}

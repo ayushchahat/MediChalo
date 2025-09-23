@@ -1,0 +1,24 @@
+.recent-orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.recent-orders-table th, .recent-orders-table td {
+    text-align: left;
+    padding: 0.8rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.recent-orders-table th {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+/* Reusing status tag styles from order history */
+.status-tag {
+    padding: 0.3rem 0.8rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+.pending { background-color: #f59e0b; }
+.approved { background-color: #10b981; }
+/* ... add other statuses as needed */
