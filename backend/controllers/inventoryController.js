@@ -7,24 +7,21 @@ const csv = require('csv-parser');
 // @route   POST /api/inventory
 // @access  Private (Pharmacy)
 const addMedicine = [
+    // 1. Use the validation middleware to check the request body first.
     validate(medicineSchema),
     async (req, res) => {
         try {
-            const { name, batchNumber, expiryDate, quantity, price, prescriptionRequired } = req.body;
-
-            const medicine = new Medicine({
-                pharmacy: req.user._id,
-                name,
-                batchNumber,
-                expiryDate,
-                quantity,
-                price,
-                prescriptionRequired,
+            // 2. If validation passes, create a new medicine document in the database.
+            // The pharmacy's ID is automatically added from the logged-in user's token.
+            const createdMedicine = await Medicine.create({
+                ...req.body,
+                pharmacy: req.user._id
             });
-
-            const createdMedicine = await medicine.save();
+            // 3. Send back the newly created medicine data with a 201 Created status.
             res.status(201).json(createdMedicine);
         } catch (error) {
+            // If anything goes wrong, log the error and send a 500 server error response.
+            console.error("ADD MEDICINE ERROR:", error);
             res.status(500).json({ message: 'Server Error', error: error.message });
         }
     }
@@ -50,14 +47,12 @@ const updateMedicine = async (req, res) => {
         const medicine = await Medicine.findById(req.params.id);
 
         if (medicine && medicine.pharmacy.toString() === req.user._id.toString()) {
-            medicine.name = req.body.name || medicine.name;
-            medicine.batchNumber = req.body.batchNumber || medicine.batchNumber;
-            medicine.expiryDate = req.body.expiryDate || medicine.expiryDate;
-            medicine.quantity = req.body.quantity !== undefined ? req.body.quantity : medicine.quantity;
-            medicine.price = req.body.price !== undefined ? req.body.price : medicine.price;
-            medicine.prescriptionRequired = req.body.prescriptionRequired !== undefined ? req.body.prescriptionRequired : medicine.prescriptionRequired;
-
-            const updatedMedicine = await medicine.save();
+            // Now using findByIdAndUpdate for cleaner updates
+            const updatedMedicine = await Medicine.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
             res.json(updatedMedicine);
         } else {
             res.status(404).json({ message: 'Medicine not found or not authorized' });
@@ -97,16 +92,9 @@ const searchMedicines = async (req, res) => {
     } : {};
 
     try {
-        // Find medicines and populate pharmacy details
+        // Simpler populate of pharmacy name only (new code’s behavior)
         const medicines = await Medicine.find({ ...keyword, quantity: { $gt: 0 } })
-            .populate({
-                path: 'pharmacy',
-                select: 'name address',
-                populate: {
-                    path: 'pharmacyProfile',
-                    select: 'shopName'
-                }
-            });
+            .populate('pharmacy', 'name');
 
         if (medicines.length > 0) {
             res.json(medicines);
@@ -118,37 +106,35 @@ const searchMedicines = async (req, res) => {
     }
 };
 
-// @desc    Bulk upload medicines from a CSV file
+// @desc    Bulk upload medicines via CSV
 // @route   POST /api/inventory/bulk-upload
 // @access  Private (Pharmacy)
-const bulkUploadInventory = async (req, res) => {
+const bulkUploadInventory = (req, res) => {
     if (!req.file) {
-        return res.status(400).send({ message: 'No CSV file uploaded.' });
+        return res.status(400).json({ message: 'No CSV file uploaded.' });
     }
 
     const results = [];
-    const filePath = req.file.path;
 
-    fs.createReadStream(filePath)
+    fs.createReadStream(req.file.path)
         .pipe(csv())
-        .on('data', (data) => results.push(data))
+        .on('data', (data) => {
+            // Attach pharmacy to each row directly here
+            results.push({ ...data, pharmacy: req.user._id });
+        })
         .on('end', async () => {
             try {
-                const medicinesToInsert = results.map(med => ({
-                    ...med,
-                    pharmacy: req.user._id,
-                    quantity: parseInt(med.quantity, 10),
-                    price: parseFloat(med.price),
-                    prescriptionRequired: med.prescriptionRequired?.toLowerCase() === 'true'
-                }));
-
-                await Medicine.insertMany(medicinesToInsert);
-                fs.unlinkSync(filePath);
-                res.status(201).json({ message: `${medicinesToInsert.length} medicines added successfully.` });
+                await Medicine.insertMany(results);
+                fs.unlinkSync(req.file.path); // Clean up uploaded file
+                res.status(201).json({
+                    message: 'Bulk upload successful!',
+                    count: results.length
+                });
             } catch (error) {
-                console.error("BULK UPLOAD ERROR:", error);
-                fs.unlinkSync(filePath);
-                res.status(500).json({ message: 'Error processing CSV file.', error: error.message });
+                res.status(500).json({
+                    message: 'Error processing CSV file.',
+                    error: error.message
+                });
             }
         });
 };

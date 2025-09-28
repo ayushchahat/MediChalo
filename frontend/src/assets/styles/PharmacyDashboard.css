@@ -1,42 +1,26 @@
-/* --- Main Dashboard Layout --- */
+/* Main Dashboard Container */
 .pharmacy-dashboard {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 2rem auto;
     padding: 1.5rem;
-    animation: fadeIn 0.5s ease-in-out;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- Header --- */
+/* Header Section */
 .pd-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
-.pd-header-title h1 {
-    font-size: 2rem;
-    margin: 0 0 0.25rem 0;
-    color: var(--text-color);
-}
-
-.pd-header-title p {
+.pd-header h1 {
+    font-size: 2.2rem;
     margin: 0;
-    font-size: 1rem;
-    color: #6b7280; /* A neutral gray for subtitles */
-}
-
-.dark .pd-header-title p {
-    color: #9ca3af;
+    color: var(--text-color);
 }
 
 .pd-quick-actions {
@@ -45,23 +29,25 @@
 }
 
 .action-btn {
-    padding: 0.7rem 1.4rem;
+    padding: 0.8rem 1.5rem;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     border: 1px solid var(--primary-color);
-    background-color: transparent;
     color: var(--primary-color);
+    background-color: transparent;
     transition: all 0.2s ease-in-out;
-    cursor: pointer;
     text-align: center;
 }
 
 .action-btn:hover {
-    background-color: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    background-color: #eff6ff; /* Light blue on hover */
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.dark .action-btn:hover {
+    background-color: #1e293b;
 }
 
 .action-btn.primary {
@@ -74,7 +60,7 @@
     border-color: var(--secondary-color);
 }
 
-/* --- Metric Cards Grid --- */
+/* Metric Cards Grid */
 .metric-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -82,12 +68,12 @@
     margin-bottom: 2.5rem;
 }
 
-/* --- Dashboard Widgets Grid --- */
+/* Main Dashboard Widgets (Chart and Table) */
 .dashboard-widgets-grid {
     display: grid;
-    grid-template-columns: 65% 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 1.5rem;
-    align-items: flex-start;
+    align-items: start;
 }
 
 .widget-card {
@@ -95,32 +81,24 @@
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 8px rgba(0,0,0,0.04);
-    transition: box-shadow 0.3s ease;
-}
-
-.widget-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .widget-card h3 {
     margin-top: 0;
     margin-bottom: 1.5rem;
     font-size: 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.75rem;
 }
 
-/* --- Utility & Loading/Error States --- */
-.loading-spinner, .error-message {
+/* Utility & Loading Styles */
+.loading-spinner {
     text-align: center;
-    padding: 4rem;
+    padding: 3rem;
     font-size: 1.2rem;
     font-weight: 500;
-    color: #6b7280;
 }
 
-/* --- Responsive Design --- */
+/* Responsive Adjustments */
 @media (max-width: 992px) {
     .dashboard-widgets-grid {
         grid-template-columns: 1fr;
@@ -132,7 +110,5 @@
         flex-direction: column;
         align-items: flex-start;
     }
-    .pd-header-title {
-        margin-bottom: 1rem;
-    }
 }
+

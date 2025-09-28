@@ -14,7 +14,10 @@ import OrderHistoryPage from '../pages/customer/OrderHistoryPage';
 
 // Pharmacy Pages
 import PharmacyDashboard from '../pages/pharmacy/PharmacyDashboard';
-import PharmacyOnboardingPage from '../pages/pharmacy/OnboardingPage';
+import OnboardingPage from '../pages/pharmacy/OnboardingPage';
+import AddMedicinePage from '../pages/pharmacy/AddMedicinePage';
+import InventoryPage from '../pages/pharmacy/InventoryPage';
+import ManageOrdersPage from '../pages/pharmacy/ManageOrdersPage'; // Import for the new page
 
 // Delivery Partner Pages
 import DeliveryDashboard from '../pages/delivery/DeliveryDashboard';
@@ -28,38 +31,33 @@ const AppRouter = () => {
       <Navbar />
       <main className="container">
         <Routes>
-          {/* ================= PUBLIC ROUTES ================= */}
+          {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
 
-          {/* ================= PROTECTED ROUTES ================= */}
+          {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-
-            {/* --- Customer Routes --- */}
+            {/* Customer Routes */}
             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
             <Route path="/customer/orders" element={<OrderHistoryPage />} />
 
-            {/* --- Pharmacy Routes --- */}
+            {/* Pharmacy Routes */}
             <Route path="/pharmacy/dashboard" element={<PharmacyDashboard />} />
-            <Route path="/pharmacy/onboarding" element={<PharmacyOnboardingPage />} />
-            {/* Future: inventory, orders, reports routes */}
+            <Route path="/pharmacy/onboarding" element={<OnboardingPage />} />
+            <Route path="/pharmacy/add-medicine" element={<AddMedicinePage />} />
+            <Route path="/pharmacy/inventory" element={<InventoryPage />} />
+            <Route path="/pharmacy/orders" element={<ManageOrdersPage />} /> {/* <-- New route for managing orders */}
 
-            {/* --- Delivery Partner Routes --- */}
+            {/* Delivery Partner Routes */}
             <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
             <Route path="/delivery/onboarding" element={<DeliveryOnboardingPage />} />
             <Route path="/delivery/history" element={<DeliveryHistoryPage />} />
             <Route path="/delivery/earnings" element={<DeliveryEarningsPage />} />
-
           </Route>
-
-          {/* ================= CATCH-ALL ROUTE ================= */}
-          <Route path="*" element={
-            <div style={{ textAlign: 'center', marginTop: '50px' }}>
-              <h1>404 - Page Not Found</h1>
-              <p>The page you are looking for does not exist.</p>
-            </div>
-          } />
+          
+          {/* Catch-all for any undefined routes */}
+          <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </main>
     </>
@@ -67,3 +65,4 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
+

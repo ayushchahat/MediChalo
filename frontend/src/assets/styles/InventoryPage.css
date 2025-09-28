@@ -1,0 +1,118 @@
+.inventory-page {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inventory-header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.add-medicine-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.add-medicine-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.no-medicines-card {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.no-medicines-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.no-medicines-card h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.no-medicines-card p {
+    margin: 0;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.medicines-table-container {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.medicines-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.medicines-table th, .medicines-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.medicines-table th {
+    background-color: #f9fafb;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dark .medicines-table th {
+    background-color: #1f2937;
+}
+
+.medicines-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn-edit, .action-btn-delete {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.action-btn-edit {
+    background-color: #e0e7ff;
+    color: var(--primary-color);
+}
+
+.action-btn-delete {
+    background-color: #fee2e2;
+    color: var(--error-color);
+}
