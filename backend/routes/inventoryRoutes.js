@@ -1,38 +1,51 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    addMedicine, 
-    getInventory, 
-    updateMedicine, 
-    deleteMedicine, 
+const {
+    addMedicine,
+    getInventory,
+    updateMedicine,
+    deleteMedicine,
     searchMedicines,
-    bulkUploadInventory 
+    bulkUpload,
+    getAvailableMedicines
 } = require('../controllers/inventoryController');
 const { protect, hasRole } = require('../middleware/authMiddleware');
-const { uploadCsv } = require('../middleware/uploadMiddleware');
+const { uploadCsv, uploadMedicineImage } = require('../middleware/uploadMiddleware');
 
-// @route   /api/inventory
-// @desc    Routes for getting the full inventory and adding a single new medicine.
+// @route   GET /api/inventory
+// @desc    Get all medicines for the logged-in pharmacy.
 // @access  Private (Pharmacy)
-router.route('/')
-    .get(protect, hasRole(['Pharmacy']), getInventory)
-    .post(protect, hasRole(['Pharmacy']), addMedicine);
+router.get('/', protect, hasRole(['Pharmacy']), getInventory);
+
+// @route   POST /api/inventory
+// @desc    Add a new medicine to the inventory, with image upload.
+// @access  Private (Pharmacy)
+router.post('/', protect, hasRole(['Pharmacy']), uploadMedicineImage, addMedicine);
 
 // @route   POST /api/inventory/bulk-upload
-// @desc    Route for uploading a CSV file of medicines.
+// @desc    Upload a CSV file to add multiple medicines at once.
 // @access  Private (Pharmacy)
-router.post('/bulk-upload', protect, hasRole(['Pharmacy']), uploadCsv, bulkUploadInventory);
+router.post('/bulk-upload', protect, hasRole(['Pharmacy']), uploadCsv, bulkUpload);
+
+// @route   GET /api/inventory/available
+// @desc    Get all medicines currently in stock for the customer storefront.
+// @access  Private (Customer)
+router.get('/available', protect, hasRole(['Customer']), getAvailableMedicines);
 
 // @route   GET /api/inventory/search
-// @desc    Route for customers to search for available medicines.
+// @desc    Search for available medicines by keyword.
 // @access  Private (Customer)
 router.get('/search', protect, hasRole(['Customer']), searchMedicines);
 
-// @route   /api/inventory/:id
-// @desc    Routes for updating or deleting a specific medicine by its ID.
+// @route   PUT /api/inventory/:id
+// @desc    Update a specific medicine's details.
 // @access  Private (Pharmacy)
-router.route('/:id')
-    .put(protect, hasRole(['Pharmacy']), updateMedicine)
-    .delete(protect, hasRole(['Pharmacy']), deleteMedicine);
+router.put('/:id', protect, hasRole(['Pharmacy']), updateMedicine);
+
+// @route   DELETE /api/inventory/:id
+// @desc    Delete a specific medicine from the inventory.
+// @access  Private (Pharmacy)
+router.delete('/:id', protect, hasRole(['Pharmacy']), deleteMedicine);
 
 module.exports = router;
+
