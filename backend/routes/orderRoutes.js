@@ -7,7 +7,8 @@ const {
     updateOrderStatus,
     assignDeliveryPartner,
     confirmDelivery,
-    downloadInvoice
+    downloadInvoice,
+    createOrderFromCart
 } = require('../controllers/orderController');
 const { protect, hasRole } = require('../middleware/authMiddleware');
 const { uploadPrescription } = require('../middleware/uploadMiddleware');
@@ -17,8 +18,13 @@ const { uploadPrescription } = require('../middleware/uploadMiddleware');
 // @access  Private (Customer)
 router.post('/', protect, hasRole(['Customer']), uploadPrescription, createOrder);
 
+// @route   POST /api/orders/cart
+// @desc    Create a new order from the customer's shopping cart.
+// @access  Private (Customer)
+router.post('/cart', protect, hasRole(['Customer']), createOrderFromCart);
+
 // @route   GET /api/orders/my-orders
-// @desc    Get all orders for the currently logged-in user (either Customer or Delivery Partner).
+// @desc    Get all orders for the currently logged-in user (Customer or Delivery Partner).
 // @access  Private (Customer, DeliveryPartner)
 router.get('/my-orders', protect, hasRole(['Customer', 'DeliveryPartner']), getMyOrders);
 
@@ -29,8 +35,8 @@ router.get('/pharmacy-orders', protect, hasRole(['Pharmacy']), getPharmacyOrders
 
 // @route   GET /api/orders/:id/invoice
 // @desc    Download a PDF invoice for a specific order.
-// @access  Private (Customer)
-router.get('/:id/invoice', protect, hasRole(['Customer']), downloadInvoice);
+// @access  Private (Customer, Pharmacy)
+router.get('/:id/invoice', protect, hasRole(['Customer', 'Pharmacy']), downloadInvoice);
 
 // @route   PUT /api/orders/:id/status
 // @desc    Update the status of an order.
