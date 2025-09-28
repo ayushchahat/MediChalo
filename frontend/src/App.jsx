@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SocketProvider } from './context/SocketContext';
+import { CartProvider } from './context/CartContext'; // ✅ import CartProvider
 
 function App() {
   return (
@@ -16,8 +17,10 @@ function App() {
         <LanguageProvider>
           <AuthProvider>
             <SocketProvider>
-              <AppRouter />
-              <ToastContainer position="bottom-right" theme="colored" />
+              <CartProvider> {/* ✅ Wrap with CartProvider */}
+                <AppRouter />
+                <ToastContainer position="bottom-right" theme="colored" />
+              </CartProvider>
             </SocketProvider>
           </AuthProvider>
         </LanguageProvider>
