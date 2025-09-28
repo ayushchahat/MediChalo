@@ -11,13 +11,14 @@ import SignupPage from '../pages/public/SignupPage';
 // Customer Pages
 import CustomerDashboard from '../pages/customer/CustomerDashboard';
 import OrderHistoryPage from '../pages/customer/OrderHistoryPage';
+import CartPage from '../pages/customer/CartPage'; // Import the new CartPage
 
 // Pharmacy Pages
 import PharmacyDashboard from '../pages/pharmacy/PharmacyDashboard';
 import OnboardingPage from '../pages/pharmacy/OnboardingPage';
 import AddMedicinePage from '../pages/pharmacy/AddMedicinePage';
 import InventoryPage from '../pages/pharmacy/InventoryPage';
-import ManageOrdersPage from '../pages/pharmacy/ManageOrdersPage'; // Import for the new page
+import ManageOrdersPage from '../pages/pharmacy/ManageOrdersPage';
 
 // Delivery Partner Pages
 import DeliveryDashboard from '../pages/delivery/DeliveryDashboard';
@@ -41,13 +42,14 @@ const AppRouter = () => {
             {/* Customer Routes */}
             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
             <Route path="/customer/orders" element={<OrderHistoryPage />} />
+            <Route path="/cart" element={<CartPage />} /> {/* <-- New route for the cart */}
 
             {/* Pharmacy Routes */}
             <Route path="/pharmacy/dashboard" element={<PharmacyDashboard />} />
             <Route path="/pharmacy/onboarding" element={<OnboardingPage />} />
             <Route path="/pharmacy/add-medicine" element={<AddMedicinePage />} />
             <Route path="/pharmacy/inventory" element={<InventoryPage />} />
-            <Route path="/pharmacy/orders" element={<ManageOrdersPage />} /> {/* <-- New route for managing orders */}
+            <Route path="/pharmacy/orders" element={<ManageOrdersPage />} />
 
             {/* Delivery Partner Routes */}
             <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />

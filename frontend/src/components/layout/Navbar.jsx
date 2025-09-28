@@ -1,71 +1,78 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
-import { FaMoon, FaSun, FaBars, FaTimes } from 'react-icons/fa';
-import logo from '../../assets/images/medichalo-logo.jpeg'; // Import the logo
+import CartContext from '../../context/CartContext'; // Import CartContext
+import { FaMoon, FaSun, FaShoppingCart } from 'react-icons/fa';
+import medichaloLogo from '../../assets/images/medichalo-logo.jpeg'; // Make sure this path is correct
 import './Navbar.css';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const { t, language, setLanguage } = useLanguage();
     const { theme, toggleTheme } = useTheme();
+    const { cartItems } = useContext(CartContext); // Get cart items from context
     const navigate = useNavigate();
-    const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
-        setMobileMenuOpen(false); // Close menu on logout
         navigate('/login');
     };
 
     const getDashboardLink = () => {
         if (!user) return "/";
         switch (user.role) {
-            case 'Customer': return '/customer/dashboard';
-            case 'Pharmacy': return '/pharmacy/dashboard';
-            case 'DeliveryPartner': return '/delivery/dashboard';
-            default: return '/';
+            case 'Customer':
+                return '/customer/dashboard';
+            case 'Pharmacy':
+                return '/pharmacy/dashboard';
+            case 'DeliveryPartner':
+                return '/delivery/dashboard';
+            default:
+                return '/';
         }
     };
 
-    const closeMobileMenu = () => setMobileMenuOpen(false);
+    const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
         <nav className="navbar">
             <div className="nav-container">
-                <Link to={getDashboardLink()} className="nav-logo" onClick={closeMobileMenu}>
-                    <img src={logo} alt="MediChalo Logo" className="nav-logo-img" />
-                    <span>MediChalo</span>
+                <Link to={getDashboardLink()} className="nav-logo-link">
+                    <img src={medichaloLogo} alt="MediChalo Logo" className="nav-logo-img" />
+                    <span className="nav-logo-text">MediChalo</span>
                 </Link>
 
-                <div className="menu-icon" onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
-                    {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
-                </div>
-
-                <div className={isMobileMenuOpen ? "nav-menu active" : "nav-menu"}>
+                <div className="nav-menu">
                     {user ? (
                         <>
-                            <Link to={getDashboardLink()} className="nav-item" onClick={closeMobileMenu}>{t('dashboard')}</Link>
-                            <button onClick={handleLogout} className="nav-item nav-button">{t('logout')}</button>
+                            <Link to={getDashboardLink()} className="nav-item">{t('dashboard')}</Link>
+                            <button onClick={handleLogout} className="nav-item nav-button-logout">{t('logout')}</button>
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className="nav-item nav-button" onClick={closeMobileMenu}>{t('login')}</Link>
-                            <Link to="/signup" className="nav-item nav-button" onClick={closeMobileMenu}>{t('signup')}</Link>
+                            <Link to="/login" className="nav-item nav-button">Login</Link>
+                            <Link to="/signup" className="nav-item nav-button primary">Sign Up</Link>
                         </>
                     )}
 
-                    <div className="nav-controls">
-                        <select value={language} onChange={(e) => setLanguage(e.target.value)} className="language-select">
-                            <option value="en">EN</option>
-                            <option value="hi">HI</option>
-                        </select>
-                        <button onClick={toggleTheme} className="theme-toggle">
-                            {theme === 'light' ? <FaMoon /> : <FaSun />}
-                        </button>
-                    </div>
+                    {/* Show Cart Icon only for Customers */}
+                    {user?.role === 'Customer' && (
+                        <Link to="/cart" className="nav-item cart-icon-link">
+                            <FaShoppingCart />
+                            {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
+                        </Link>
+                    )}
+
+                    <select value={language} onChange={(e) => setLanguage(e.target.value)} className="nav-item language-select">
+                        <option value="en">EN</option>
+                        <option value="hi">HI</option>
+                    </select>
+                    
+                    <button onClick={toggleTheme} className="theme-toggle">
+                        {theme === 'light' ? <FaMoon /> : <FaSun />}
+                    </button>
                 </div>
             </div>
         </nav>

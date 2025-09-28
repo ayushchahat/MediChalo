@@ -1,38 +1,32 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-// 1. Define the schema (the blueprint) for user data.
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please provide a name']
-    },
-    email: {
-        type: String,
-        required: [true, 'Please provide an email'],
-        unique: true,
-        lowercase: true
-    },
-    phone: {
-        type: String,
-        required: [true, 'Please provide a phone number'],
-        unique: true
-    },
-    password: {
-        type: String,
-        required: [true, 'Please provide a password']
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    phone: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     role: {
         type: String,
         enum: ['Customer', 'Pharmacy', 'DeliveryPartner'],
         required: true,
-    }
+    },
+    address: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        coordinates: { lat: Number, lng: Number }
+    },
+    isVerified: { type: Boolean, default: false },
 }, {
-    // Automatically add 'createdAt' and 'updatedAt' fields
-    timestamps: true
+    timestamps: true,
+    // IMPORTANT: Ensure virtual fields are included when converting to JSON
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-// 2. Hash password automatically before saving a new user.
+// Hash password before saving
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
         return next();
@@ -42,15 +36,20 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
-// 3. Add a method to the schema for comparing passwords during login.
+// Method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// 4. Create the Mongoose model from the schema. This model is a special function.
-const User = mongoose.model('User', userSchema);
+// NEW: Virtual property to link a User to their Pharmacy profile
+// This allows us to easily populate the pharmacy details from the User model.
+userSchema.virtual('pharmacyProfile', {
+  ref: 'Pharmacy',      // The model to use
+  localField: '_id',    // Find in Pharmacy where 'user'
+  foreignField: 'user', // is equal to this user's '_id'
+  justOne: true         // We only expect one pharmacy profile per user
+});
 
-// 5. (CRITICAL) Export the model directly. This is the definitive fix.
-// This ensures that when other files 'require' this file, they get the User model function.
+const User = mongoose.model('User', userSchema);
 module.exports = User;
 
