@@ -15,13 +15,14 @@ const orderSchema = new mongoose.Schema({
     ],
     prescriptionImage: { type: String },
     totalAmount: { type: Number, required: true },
+    deliveryFee: { type: Number, default: 5 },
     status: {
         type: String,
         enum: [
             'Pending',
             'Approved',
             'Rejected',
-            'Ready for Delivery', // <-- New status added
+            'Ready for Delivery',
             'Accepted by Partner',
             'Out for Delivery',
             'Delivered',
@@ -41,9 +42,7 @@ const orderSchema = new mongoose.Schema({
         default: 'Pending',
     },
     deliveryOtp: String,
-    deliveryFee: { type: Number, default: 5 },
+    eta: { type: Date },
 }, { timestamps: true });
 
-const Order = mongoose.model('Order', orderSchema);
-module.exports = Order;
-
+module.exports = mongoose.model('Order', orderSchema);

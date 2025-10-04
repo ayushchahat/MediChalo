@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
-import { FaPlus, FaBoxOpen, FaTrash, FaPencilAlt } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaPencilAlt } from 'react-icons/fa';
 import '../../assets/styles/InventoryPage.css'; // Ensure you have this CSS file
 
 // --- Reusable Modal Component ---
@@ -50,7 +50,6 @@ const InventoryPage = () => {
         try {
             await api.delete(`/inventory/${selectedMedicine._id}`);
             toast.success(`'${selectedMedicine.name}' was deleted successfully.`);
-            // Update state to remove the medicine from the UI instantly
             setMedicines(medicines.filter(med => med._id !== selectedMedicine._id));
             setShowDeleteModal(false);
             setSelectedMedicine(null);
@@ -75,7 +74,6 @@ const InventoryPage = () => {
         try {
             const { data: updatedMedicine } = await api.put(`/inventory/${selectedMedicine._id}`, selectedMedicine);
             toast.success(`'${selectedMedicine.name}' was updated successfully.`);
-            // Update the medicine in the local state
             setMedicines(medicines.map(med => med._id === updatedMedicine._id ? updatedMedicine : med));
             setShowEditModal(false);
             setSelectedMedicine(null);
@@ -84,16 +82,13 @@ const InventoryPage = () => {
         }
     };
 
-
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    if (loading) {
-        return <div className="loading-spinner">Loading Inventory...</div>;
-    }
+    if (loading) return <div className="loading-spinner">Loading Inventory...</div>;
 
     return (
         <div className="inventory-page">
@@ -106,7 +101,7 @@ const InventoryPage = () => {
 
             {medicines.length === 0 ? (
                 <div className="no-medicines-card">
-                    {/* ... no medicines content ... */}
+                    {/* No medicines available */}
                 </div>
             ) : (
                 <div className="medicines-table-container">
@@ -166,7 +161,7 @@ const InventoryPage = () => {
                         <label>Price ($)</label>
                         <input type="number" step="0.01" name="price" value={selectedMedicine?.price || ''} onChange={handleUpdateChange} />
                     </div>
-                     <div className="form-group">
+                    <div className="form-group">
                         <label>Expiry Date</label>
                         <input type="date" name="expiryDate" value={selectedMedicine?.expiryDate || ''} onChange={handleUpdateChange} />
                     </div>
@@ -181,4 +176,3 @@ const InventoryPage = () => {
 };
 
 export default InventoryPage;
-

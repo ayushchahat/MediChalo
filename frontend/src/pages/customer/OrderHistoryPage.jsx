@@ -1,103 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../api/axiosConfig';
-import { saveAs } from 'file-saver';
-import { FaFileInvoice } from 'react-icons/fa';
-import '../../assets/styles/OrderHistoryPage.css';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-const OrderHistoryPage = () => {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('All');
+// Custom Icons
+const pharmacyIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/2965/2965567.png',
+  iconSize: [35, 35],
+  iconAnchor: [17, 35],
+});
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            setLoading(true);
-            try {
-                const { data } = await api.get('/orders/my-orders');
-                setOrders(data);
-            } catch (error) {
-                console.error("Failed to fetch order history:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOrders();
-    }, []);
+const customerIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',
+  iconSize: [35, 35],
+  iconAnchor: [17, 35],
+});
 
-    const handleDownloadInvoice = async (orderId) => {
-        try {
-            const response = await api.get(`/orders/${orderId}/invoice`, {
-                responseType: 'blob', // Important for file downloads
-            });
-            const blob = new Blob([response.data], { type: 'application/pdf' });
-            saveAs(blob, `invoice-${orderId}.pdf`);
-        } catch (error) {
-            console.error('Failed to download invoice:', error);
-        }
-    };
-
-    const getStatusClass = (status) => status.toLowerCase().replace(/\s+/g, '-');
-    
-    const filteredOrders = orders.filter(order => filter === 'All' || order.status === filter);
-
-    return (
-        <div className="order-history-container">
-            <h1>My Orders</h1>
-            <div className="filter-controls">
-                <span>Filter by status:</span>
-                <select onChange={(e) => setFilter(e.target.value)} value={filter}>
-                    <option value="All">All</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Out for Delivery">Out for Delivery</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
-            </div>
-
-            {loading && <p>Loading your orders...</p>}
-            {!loading && filteredOrders.length === 0 && (
-                <p>You have no orders matching this filter.</p>
-            )}
-
-            <div className="orders-list">
-                {filteredOrders.map(order => (
-                    <div key={order._id} className="order-card">
-                        <div className="order-card-header">
-                            <div>
-                                <h3>Order ID: {order._id}</h3>
-                                <p>Placed on: {new Date(order.createdAt).toLocaleString()}</p>
-                            </div>
-                            <span className={`status-tag ${getStatusClass(order.status)}`}>{order.status}</span>
-                        </div>
-                        <div className="order-card-body">
-                            <h4>Items:</h4>
-                            {order.medicines.length > 0 ? (
-                                <ul>
-                                    {order.medicines.map(med => (
-                                        <li key={med.medicineId}>{med.name} (Qty: {med.quantity}) - <em>{med.status}</em></li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p>Items pending pharmacy review from prescription.</p>
-                            )}
-                        </div>
-                        <div className="order-card-footer">
-                            <p className="total-amount">Total: ${order.totalAmount.toFixed(2)}</p>
-                            <button 
-                                onClick={() => handleDownloadInvoice(order._id)}
-                                className="invoice-btn"
-                                disabled={order.status !== 'Delivered'}
-                            >
-                                <FaFileInvoice /> Download Invoice
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+// Component to fit map bounds
+const FitBounds = ({ bounds }) => {
+  const map = useMap();
+  if (bounds) map.fitBounds(bounds, { padding: [50, 50] });
+  return null;
 };
 
-export default OrderHistoryPage;
+const OrderTrackerMap = ({ pharmacyLocation, customerLocation }) => {
+  const [route, setRoute] = useState([]);
+
+  // Default center
+  const defaultCenter = [8.5241, 76.9366]; // Thiruvananthapuram
+
+  // Generate bounds
+  const bounds =
+    pharmacyLocation && customerLocation
+      ? L.latLngBounds([
+          [pharmacyLocation.lat, pharmacyLocation.lng],
+          [customerLocation.lat, customerLocation.lng],
+        ])
+      : null;
+
+  // Fetch route using OSRM
+  useEffect(() => {
+    if (pharmacyLocation && customerLocation) {
+      const url = `https://router.project-osrm.org/route/v1/driving/${pharmacyLocation.lng},${pharmacyLocation.lat};${customerLocation.lng},${customerLocation.lat}?overview=full&geometries=geojson`;
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.routes && data.routes.length > 0) {
+            const coords = data.routes[0].geometry.coordinates.map((c) => [c[1], c[0]]);
+            setRoute(coords);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [pharmacyLocation, customerLocation]);
+
+  return (
+    <MapContainer
+      center={customerLocation || defaultCenter}
+      zoom={13}
+      style={{ height: '100%', width: '100%', borderRadius: '12px' }}
+      scrollWheelZoom={true}
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+      />
+
+      {pharmacyLocation && (
+        <Marker position={[pharmacyLocation.lat, pharmacyLocation.lng]} icon={pharmacyIcon}>
+          <Popup>Pharmacy Location</Popup>
+        </Marker>
+      )}
+
+      {customerLocation && (
+        <Marker position={[customerLocation.lat, customerLocation.lng]} icon={customerIcon}>
+          <Popup>Your Location</Popup>
+        </Marker>
+      )}
+
+      {route.length > 0 && <Polyline positions={route} color="blue" weight={4} />}
+
+      {bounds && <FitBounds bounds={bounds} />}
+    </MapContainer>
+  );
+};
+
+export default OrderTrackerMap;

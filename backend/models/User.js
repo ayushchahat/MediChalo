@@ -2,47 +2,69 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    phone: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: {
-        type: String,
-        enum: ['Customer', 'Pharmacy', 'DeliveryPartner'],
-        required: true,
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  phone: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: {
+    type: String,
+    enum: ['Customer', 'Pharmacy', 'DeliveryPartner'],
+    required: true,
+  },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    coordinates: { lat: Number, lng: Number }
+  },
+  isVerified: { type: Boolean, default: false },
+
+  // NEW: Field to store user's location (GeoJSON)
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
     },
-    address: {
-        street: String,
-        city: String,
-        state: String,
-        zipCode: String,
-        coordinates: { lat: Number, lng: Number }
-    },
-    isVerified: { type: Boolean, default: false },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      default: [0, 0]
+    }
+  },
+
+  // NEW: Flag to check if location has been captured
+  locationCaptured: {
+    type: Boolean,
+    default: false
+  },
+
 }, {
-    timestamps: true,
-    // IMPORTANT: Ensure virtual fields are included when converting to JSON
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+  timestamps: true,
+  // IMPORTANT: Ensure virtual fields are included when converting to JSON
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
+// Create a 2dsphere index for geospatial queries
+userSchema.index({ location: '2dsphere' });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// NEW: Virtual property to link a User to their Pharmacy profile
-// This allows us to easily populate the pharmacy details from the User model.
+// Virtual property to link a User to their Pharmacy profile
 userSchema.virtual('pharmacyProfile', {
   ref: 'Pharmacy',      // The model to use
   localField: '_id',    // Find in Pharmacy where 'user'
@@ -52,4 +74,3 @@ userSchema.virtual('pharmacyProfile', {
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
-

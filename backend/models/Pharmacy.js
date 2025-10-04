@@ -6,16 +6,22 @@ const pharmacySchema = new mongoose.Schema({
     licensePath: { type: String, required: true },
     gstPath: { type: String, required: true },
     logoPath: { type: String },
-    workingHours: {
-        start: String,
-        end: String,
+    workingHours: { start: String, end: String },
+    offDays: [String],
+    onboardingComplete: { type: Boolean, default: false },
+
+    // Location for mapping
+    location: {
+        type: { type: String, enum: ['Point'], default: 'Point' },
+        coordinates: { type: [Number], default: [0, 0] }
     },
-    offDays: [String], // e.g., ['Sunday', 'Monday']
-    onboardingComplete: { type: Boolean, default: false }, // Crucial for dashboard access
+
 }, { timestamps: true });
 
-// Ensure a user can only have one pharmacy profile
+// Unique index for user
 pharmacySchema.index({ user: 1 }, { unique: true });
+// 2dsphere index for geospatial queries
+pharmacySchema.index({ location: '2dsphere' });
 
 const Pharmacy = mongoose.model('Pharmacy', pharmacySchema);
 module.exports = Pharmacy;

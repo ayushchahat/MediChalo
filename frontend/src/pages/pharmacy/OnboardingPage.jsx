@@ -9,7 +9,9 @@ const OnboardingPage = () => {
         shopName: '',
         start: '09:00',
         end: '18:00',
-        offDays: []
+        offDays: [],
+        latitude: '',    // ✅ added
+        longitude: ''    // ✅ added
     });
     const [files, setFiles] = useState({
         license: null,
@@ -38,7 +40,7 @@ const OnboardingPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const submissionData = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
             if (key === 'offDays') {
@@ -72,7 +74,31 @@ const OnboardingPage = () => {
                         <label>Shop Name</label>
                         <input type="text" name="shopName" onChange={handleChange} required />
                     </div>
-                     {/* Add fields for address with Google Maps API later */}
+
+                    {/* ✅ Latitude and Longitude */}
+                    <div className="form-group">
+                        <label htmlFor="latitude">Shop Latitude</label>
+                        <input
+                            type="text"
+                            name="latitude"
+                            placeholder="e.g., 8.5241"
+                            value={formData.latitude}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="longitude">Shop Longitude</label>
+                        <input
+                            type="text"
+                            name="longitude"
+                            placeholder="e.g., 76.9366"
+                            value={formData.longitude}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
                     <div className="form-group">
                         <label>Working Hours</label>
                         <div className="time-inputs">
@@ -81,6 +107,7 @@ const OnboardingPage = () => {
                             <input type="time" name="end" value={formData.end} onChange={handleChange} />
                         </div>
                     </div>
+
                     <div className="form-group">
                         <label>Weekly Off Days</label>
                         <div className="days-selector">
@@ -96,14 +123,17 @@ const OnboardingPage = () => {
                             ))}
                         </div>
                     </div>
+
                     <div className="form-group">
                         <label>License Document (PDF/Image)</label>
                         <input type="file" name="license" onChange={handleFileChange} required accept="image/*,application/pdf"/>
                     </div>
+
                     <div className="form-group">
                         <label>GST Document (PDF/Image)</label>
                         <input type="file" name="gst" onChange={handleFileChange} required accept="image/*,application/pdf"/>
                     </div>
+
                     <div className="form-group">
                         <label>Shop Logo (Optional)</label>
                         <input type="file" name="logo" onChange={handleFileChange} accept="image/*"/>

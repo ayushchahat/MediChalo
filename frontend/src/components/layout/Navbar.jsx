@@ -3,16 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
-import CartContext from '../../context/CartContext'; // Import CartContext
-import { FaMoon, FaSun, FaShoppingCart } from 'react-icons/fa';
-import medichaloLogo from '../../assets/images/medichalo-logo.jpeg'; // Make sure this path is correct
+import CartContext from '../../context/CartContext';
+import { FaMoon, FaSun, FaShoppingCart, FaClipboardList } from 'react-icons/fa';
+import medichaloLogo from '../../assets/images/medichalo-logo.jpeg';
 import './Navbar.css';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const { t, language, setLanguage } = useLanguage();
     const { theme, toggleTheme } = useTheme();
-    const { cartItems } = useContext(CartContext); // Get cart items from context
+    const { cartItems } = useContext(CartContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -48,6 +48,20 @@ const Navbar = () => {
                     {user ? (
                         <>
                             <Link to={getDashboardLink()} className="nav-item">{t('dashboard')}</Link>
+
+                            {/* === CUSTOMER SPECIFIC NAVIGATION BUTTONS === */}
+                            {user.role === 'Customer' && (
+                                <>
+                                    <Link to="/customer/orders" className="nav-item">
+                                        <FaClipboardList /> Orders
+                                    </Link>
+                                    <Link to="/cart" className="nav-item cart-icon-link">
+                                        <FaShoppingCart />
+                                        {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
+                                    </Link>
+                                </>
+                            )}
+
                             <button onClick={handleLogout} className="nav-item nav-button-logout">{t('logout')}</button>
                         </>
                     ) : (
@@ -55,14 +69,6 @@ const Navbar = () => {
                             <Link to="/login" className="nav-item nav-button">Login</Link>
                             <Link to="/signup" className="nav-item nav-button primary">Sign Up</Link>
                         </>
-                    )}
-
-                    {/* Show Cart Icon only for Customers */}
-                    {user?.role === 'Customer' && (
-                        <Link to="/cart" className="nav-item cart-icon-link">
-                            <FaShoppingCart />
-                            {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
-                        </Link>
                     )}
 
                     <select value={language} onChange={(e) => setLanguage(e.target.value)} className="nav-item language-select">
@@ -80,4 +86,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

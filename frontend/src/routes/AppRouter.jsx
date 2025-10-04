@@ -11,7 +11,8 @@ import SignupPage from '../pages/public/SignupPage';
 // Customer Pages
 import CustomerDashboard from '../pages/customer/CustomerDashboard';
 import OrderHistoryPage from '../pages/customer/OrderHistoryPage';
-import CartPage from '../pages/customer/CartPage'; // Import the new CartPage
+import CartPage from '../pages/customer/CartPage';
+import TrackOrderPage from '../pages/customer/TrackOrderPage'; // New import
 
 // Pharmacy Pages
 import PharmacyDashboard from '../pages/pharmacy/PharmacyDashboard';
@@ -42,7 +43,8 @@ const AppRouter = () => {
             {/* Customer Routes */}
             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
             <Route path="/customer/orders" element={<OrderHistoryPage />} />
-            <Route path="/cart" element={<CartPage />} /> {/* <-- New route for the cart */}
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/track-order/:orderId" element={<TrackOrderPage />} /> {/* Track Order */}
 
             {/* Pharmacy Routes */}
             <Route path="/pharmacy/dashboard" element={<PharmacyDashboard />} />
@@ -57,8 +59,8 @@ const AppRouter = () => {
             <Route path="/delivery/history" element={<DeliveryHistoryPage />} />
             <Route path="/delivery/earnings" element={<DeliveryEarningsPage />} />
           </Route>
-          
-          {/* Catch-all for any undefined routes */}
+
+          {/* Catch-all */}
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </main>
@@ -67,4 +69,3 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
-

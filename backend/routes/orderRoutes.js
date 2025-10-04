@@ -8,7 +8,8 @@ const {
     assignDeliveryPartner,
     confirmDelivery,
     downloadInvoice,
-    createOrderFromCart
+    createOrderFromCart,
+    getOrderTrackingDetails   // ✅ import tracking controller
 } = require('../controllers/orderController');
 const { protect, hasRole } = require('../middleware/authMiddleware');
 const { uploadPrescription } = require('../middleware/uploadMiddleware');
@@ -38,6 +39,11 @@ router.get('/pharmacy-orders', protect, hasRole(['Pharmacy']), getPharmacyOrders
 // @access  Private (Customer, Pharmacy)
 router.get('/:id/invoice', protect, hasRole(['Customer', 'Pharmacy']), downloadInvoice);
 
+// @route   GET /api/orders/:id/track
+// @desc    Get real-time tracking details of an order
+// @access  Private (Customer)
+router.get('/:id/track', protect, hasRole(['Customer']), getOrderTrackingDetails);
+
 // @route   PUT /api/orders/:id/status
 // @desc    Update the status of an order.
 // @access  Private (Pharmacy, DeliveryPartner)
@@ -54,4 +60,3 @@ router.put('/:id/assign', protect, hasRole(['Pharmacy']), assignDeliveryPartner)
 router.put('/:id/confirm-delivery', protect, hasRole(['DeliveryPartner']), confirmDelivery);
 
 module.exports = router;
-

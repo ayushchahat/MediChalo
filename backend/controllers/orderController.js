@@ -1,11 +1,13 @@
-// controllers/orderController.js
 const Order = require('../models/Order');
+const User = require('../models/User'); // For customer location
+const Pharmacy = require('../models/Pharmacy'); // For pharmacy location
 const Medicine = require('../models/Medicine');
 const { generateInvoice } = require('../services/pdfService');
+const { calculateETA } = require('../utils/etaCalculator');
 
-// @desc    Create a new order from a prescription upload
-// @route   POST /api/orders
-// @access  Private (Customer)
+// ==========================
+// Create a new order from a prescription upload
+// ==========================
 const createOrder = async (req, res) => {
   const { orderItems, pharmacyId, deliveryAddress, totalAmount } = req.body;
   if (!orderItems || orderItems.length === 0) {
@@ -22,6 +24,7 @@ const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
     const io = req.app.get('io');
     io.to(pharmacyId.toString()).emit('new_order', createdOrder);
 
@@ -32,9 +35,9 @@ const createOrder = async (req, res) => {
   }
 };
 
-// @desc    Create a new order from a shopping cart
-// @route   POST /api/orders/cart
-// @access  Private (Customer)
+// ==========================
+// Create a new order from a shopping cart
+// ==========================
 const createOrderFromCart = async (req, res) => {
   const { cartItems, deliveryAddress } = req.body;
   if (!cartItems || cartItems.length === 0) {
@@ -42,7 +45,6 @@ const createOrderFromCart = async (req, res) => {
   }
 
   try {
-    // Group items by pharmacy
     const pharmacyGroups = cartItems.reduce((acc, item) => {
       const pharmacyId = item.pharmacy._id.toString();
       if (!acc[pharmacyId]) acc[pharmacyId] = [];
@@ -97,43 +99,47 @@ const createOrderFromCart = async (req, res) => {
   }
 };
 
-// @desc    Get orders for the logged-in user
-// @route   GET /api/orders/my-orders
-// @access  Private (Customer, DeliveryPartner)
+// ==========================
+// Get orders for the logged-in user
+// ==========================
 const getMyOrders = async (req, res) => {
   try {
     const query = {};
     if (req.user.role === 'Customer') query.customer = req.user._id;
     else if (req.user.role === 'DeliveryPartner') query.deliveryPartner = req.user._id;
+
     const orders = await Order.find(query)
       .populate('pharmacy', 'name')
       .populate('customer', 'name')
       .sort({ createdAt: -1 });
+
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
 };
 
-// @desc    Get incoming orders for a pharmacy (optional ?status=)
-// @route   GET /api/orders/pharmacy-orders
-// @access  Private (Pharmacy)
+// ==========================
+// Get incoming orders for a pharmacy
+// ==========================
 const getPharmacyOrders = async (req, res) => {
   try {
     const filter = { pharmacy: req.user._id };
     if (req.query.status) filter.status = req.query.status;
+
     const orders = await Order.find(filter)
       .populate('customer', 'name email address')
       .sort({ createdAt: -1 });
+
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
 };
 
-// @desc    Update an order's status (pharmacy only)
-// @route   PUT /api/orders/:id/status
-// @access  Private (Pharmacy)
+// ==========================
+// Update an order's status (pharmacy only)
+// ==========================
 const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
   try {
@@ -159,6 +165,7 @@ const updateOrderStatus = async (req, res) => {
     const updatedOrder = await order.save();
     const io = req.app.get('io');
     io.to(order.customer.toString()).emit('order_update', updatedOrder);
+
     res.json(updatedOrder);
   } catch (error) {
     console.error("ORDER STATUS UPDATE ERROR:", error);
@@ -166,9 +173,9 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// @desc    Assign a delivery partner
-// @route   PUT /api/orders/:id/assign
-// @access  Private (Pharmacy)
+// ==========================
+// Assign a delivery partner & calculate ETA
+// ==========================
 const assignDeliveryPartner = async (req, res) => {
   const { partnerId } = req.body;
   try {
@@ -176,22 +183,36 @@ const assignDeliveryPartner = async (req, res) => {
     if (!order || order.pharmacy.toString() !== req.user._id.toString()) {
       return res.status(404).json({ message: 'Order not found or not authorized' });
     }
+
+    const pharmacyProfile = await Pharmacy.findOne({ user: order.pharmacy });
+    const customerProfile = await User.findById(order.customer);
+
+    if (pharmacyProfile?.location?.coordinates && customerProfile?.location?.coordinates) {
+      order.eta = calculateETA(
+        pharmacyProfile.location.coordinates,
+        customerProfile.location.coordinates
+      );
+    }
+
     order.deliveryPartner = partnerId;
     order.deliveryOtp = Math.floor(1000 + Math.random() * 9000).toString();
-    await order.save();
+
+    const updatedOrder = await order.save();
 
     const io = req.app.get('io');
-    io.to(partnerId.toString()).emit('new_assignment', order);
+    io.to(partnerId.toString()).emit('new_assignment', updatedOrder);
+    io.to(order.customer.toString()).emit('order_update', updatedOrder);
 
-    res.json(order);
+    res.json(updatedOrder);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    console.error("ASSIGN PARTNER ERROR:", error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-// @desc    Confirm delivery with OTP
-// @route   PUT /api/orders/:id/confirm-delivery
-// @access  Private (DeliveryPartner)
+// ==========================
+// Confirm delivery with OTP
+// ==========================
 const confirmDelivery = async (req, res) => {
   const { otp } = req.body;
   try {
@@ -203,6 +224,7 @@ const confirmDelivery = async (req, res) => {
     if (order.deliveryOtp !== otp) {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
+
     order.status = 'Delivered';
     order.paymentStatus = 'Completed';
     await order.save();
@@ -216,20 +238,51 @@ const confirmDelivery = async (req, res) => {
   }
 };
 
-// @desc    Download a PDF invoice
-// @route   GET /api/orders/:id/invoice
-// @access  Private (Customer, Pharmacy)
+// ==========================
+// Download a PDF invoice
+// ==========================
 const downloadInvoice = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('customer', 'name address');
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    // TODO: add your own authorization check here
+
+    // TODO: add proper authorization check here
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
     generateInvoice(order, res);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ==========================
+// Get real-time tracking details of an order
+// ==========================
+const getOrderTrackingDetails = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('customer', 'name location')
+      .populate('pharmacy', 'name location')
+      .populate('deliveryPartner', 'name location');
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const trackingData = {
+      status: order.status,
+      eta: order.eta || 'Calculating...',
+      pharmacyLocation: order.pharmacy?.location || null,
+      deliveryPartnerLocation: order.deliveryPartner?.location || null,
+      customerLocation: order.customer?.location || null
+    };
+
+    res.json(trackingData);
+  } catch (error) {
+    console.error('TRACK ORDER ERROR:', error);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
@@ -241,5 +294,6 @@ module.exports = {
   updateOrderStatus,
   assignDeliveryPartner,
   confirmDelivery,
-  downloadInvoice
+  downloadInvoice,
+  getOrderTrackingDetails // ✅ added export
 };
