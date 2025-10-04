@@ -51,7 +51,7 @@ const OrderManagementCard = ({ order, onUpdate }) => {
                 {order.prescriptionImage && (
                     <div className="omc-prescription">
                         <h4>Prescription</h4>
-                        <a href={`http://localhost:5000/${order.prescriptionImage}`} target="_blank" rel="noopener noreferrer">
+                        <a href={`https://medichalo-backend.onrender.com/${order.prescriptionImage}`} target="_blank" rel="noopener noreferrer">
                             View Prescription
                         </a>
                     </div>

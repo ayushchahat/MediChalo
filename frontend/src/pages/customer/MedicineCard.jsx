@@ -5,7 +5,7 @@ import './MedicineCard.css';
 
 const MedicineCard = ({ medicine }) => {
     const { addToCart } = useContext(CartContext);
-    const serverUrl = 'http://localhost:5000/';
+    const serverUrl = 'https://medichalo-backend.onrender.com/';
 
     return (
         <div className="medicine-card">
