@@ -4,7 +4,7 @@ require('dotenv').config({ path: './.env' });
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const path = require('path'); // Corrected this line
+const path = require('path');
 const connectDB = require('./config/db');
 const initializeSocket = require('./services/notificationService');
 
@@ -17,7 +17,6 @@ const reportRoutes = require('./routes/reportRoutes');
 const deliveryRoutes = require('./routes/deliveryRoutes');
 
 // --- Initial Setup ---
-// Connect to the MongoDB database
 connectDB();
 
 const app = express();
@@ -25,23 +24,31 @@ const server = http.createServer(app);
 
 // Initialize Socket.IO for real-time communication
 const io = initializeSocket(server);
-app.set('io', io); // Make 'io' accessible in other parts of the app (like controllers)
+app.set('io', io);
 
 // --- Core Middleware ---
-app.use(cors()); // Enable Cross-Origin Resource Sharing for your frontend
-app.use(express.json()); // Allow the server to accept and parse JSON in request bodies
-app.use(express.urlencoded({ extended: true })); // Allow parsing of URL-encoded data
+
+// ✅ Configure CORS properly
+app.use(cors({
+  origin: 'https://medichalo-frontend.onrender.com', // your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // enable if you’re using cookies or auth headers
+}));
+
+// Make sure Express can handle JSON and URL-encoded payloads
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (like uploaded documents and images) from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- API Route Registration ---
-// A simple health-check route to confirm the API is running
 app.get('/api', (req, res) => {
-    res.send('MediChalo API is running...');
+  res.send('MediChalo API is running...');
 });
 
-// Register all the feature-specific routes
+// Register all feature-specific routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/inventory', inventoryRoutes);
@@ -50,13 +57,11 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/delivery', deliveryRoutes);
 
 // --- Global Error Handling ---
-// This middleware will catch any errors that occur in the routes above
 app.use((err, req, res, next) => {
-    console.error("UNHANDLED ERROR:", err.stack);
-    res.status(500).send({ message: 'Something went wrong!', error: err.message });
+  console.error('UNHANDLED ERROR:', err.stack);
+  res.status(500).send({ message: 'Something went wrong!', error: err.message });
 });
 
 // --- Start the Server ---
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
