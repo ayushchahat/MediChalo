@@ -1,7 +1,7 @@
 // --- IMPORTS ---
 const User = require('../models/User');
-console.log("In authController, the imported User model is of type:", typeof User);
-
+const Pharmacy = require('../models/Pharmacy');
+const DeliveryPartner = require('../models/DeliveryPartner');
 const generateToken = require('../utils/jwtHelper');
 const { validate, signupSchema } = require('../middleware/validationMiddleware');
 
@@ -52,28 +52,28 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-      // Build response payload with extra fields (like locationCaptured)
+      // Build base response payload
       const responsePayload = {
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
         token: generateToken(user._id, user.role),
-
-        // ✅ Include locationCaptured status in response
-        locationCaptured: user.locationCaptured,
+        locationCaptured: user.locationCaptured, // ✅ Include locationCaptured
       };
 
-      // 🔹 If you also want to include onboarding status for pharmacy or delivery partners,
-      // you can compute and attach it here:
-      //
-      // if (user.role === 'Pharmacy') {
-      //   responsePayload.pharmacyOnboardingCompleted = ...;
-      // }
-      //
-      // if (user.role === 'DeliveryPartner') {
-      //   responsePayload.deliveryOnboardingCompleted = ...;
-      // }
+      // 🔹 Fetch and attach role-specific profiles
+      if (user.role === 'Pharmacy') {
+        const pharmacyProfile = await Pharmacy.findOne({ user: user._id });
+        if (pharmacyProfile) {
+          responsePayload.pharmacyProfile = pharmacyProfile.toObject();
+        }
+      } else if (user.role === 'DeliveryPartner') {
+        const deliveryProfile = await DeliveryPartner.findOne({ user: user._id });
+        if (deliveryProfile) {
+          responsePayload.deliveryProfile = deliveryProfile.toObject();
+        }
+      }
 
       res.json(responsePayload);
     } else {
@@ -87,9 +87,8 @@ const login = async (req, res) => {
 
 // --- OTP VERIFICATION (Placeholder) ---
 const verifyOtp = async (req, res) => {
-  res
-    .status(200)
-    .json({ message: 'OTP verification placeholder successful' });
+  // TODO: Implement OTP verification logic
+  res.status(200).json({ message: 'OTP verification placeholder successful' });
 };
 
 // --- EXPORT ---
