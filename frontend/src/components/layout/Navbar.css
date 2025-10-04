@@ -1,4 +1,4 @@
-/* ========== Navbar Container ========== */
+/* Navbar Container */
 .navbar {
   background-color: var(--card-bg-color);
   border-bottom: 1px solid var(--border-color);
@@ -9,10 +9,9 @@
   height: 70px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* ========== Inner Container ========== */
 .nav-container {
   display: flex;
   justify-content: space-between;
@@ -22,7 +21,7 @@
   margin: 0 auto;
 }
 
-/* ========== Logo ========== */
+/* Logo */
 .nav-logo-link {
   display: flex;
   align-items: center;
@@ -44,11 +43,10 @@
   background: linear-gradient(90deg, #2563eb, #10b981);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
   color: transparent;
 }
 
-/* ========== Navigation Menu ========== */
+/* Nav Menu */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -68,7 +66,6 @@
   transition: color 0.3s ease;
 }
 
-/* underline animation on hover (not for buttons) */
 .nav-item:not(.nav-button)::after {
   content: '';
   position: absolute;
@@ -88,7 +85,7 @@
   color: var(--primary-color);
 }
 
-/* ========== Buttons ========== */
+/* Buttons */
 .nav-button {
   padding: 0.6rem 1.2rem;
   background-color: var(--primary-color);
@@ -99,7 +96,7 @@
 
 .nav-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
   color: white;
 }
 
@@ -110,7 +107,7 @@
   border: none;
 }
 
-/* ========== Cart Icon ========== */
+/* Cart */
 .cart-icon-link {
   position: relative;
   font-size: 1.4rem;
@@ -133,14 +130,7 @@
   border: 2px solid var(--card-bg-color);
 }
 
-/* ========== Controls (Language / Theme) ========== */
-.nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-left: 1rem;
-}
-
+/* Controls */
 .language-select {
   background-color: transparent;
   border: 1px solid var(--border-color);
@@ -165,41 +155,42 @@
   transform: rotate(15deg);
 }
 
-/* ========== Mobile Menu ========== */
+/* Hamburger Icon */
 .menu-icon {
   display: none;
-  font-size: 1.8rem;
+  font-size: 2rem;
   cursor: pointer;
   color: var(--text-color);
 }
 
+/* Mobile Menu */
 @media (max-width: 960px) {
-  .nav-menu {
-    flex-direction: column;
-    width: 100%;
-    height: calc(100vh - 70px);
-    position: absolute;
-    top: 70px;
-    left: -100%;
-    opacity: 1;
-    transition: all 0.5s ease;
-    background: var(--card-bg-color);
-    padding-top: 2rem;
-    gap: 2rem;
-  }
-
-  .nav-menu.active {
-    left: 0;
-    opacity: 1;
-    transition: all 0.5s ease;
-    z-index: 1;
-  }
-
   .menu-icon {
     display: block;
   }
 
-  .nav-controls {
-    margin-left: 0;
+  .nav-menu {
+    flex-direction: column;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    background: var(--card-bg-color);
+    padding-top: 5rem;
+    gap: 2rem;
+    transition: right 0.3s ease, opacity 0.3s ease;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+    z-index: 999;
+  }
+
+  .nav-menu.active {
+    right: 0;
+    opacity: 1;
+  }
+
+  .cart-badge {
+    right: 15px;
   }
 }
