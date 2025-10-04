@@ -7,98 +7,114 @@ import MetricCard from './MetricCard';
 import SalesChart from './SalesChart';
 import RecentOrdersTable from './RecentOrdersTable';
 import '../../assets/styles/PharmacyDashboard.css';
-import { FaBoxes, FaChartLine, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
+import { FaBoxes, FaChartLine, FaExclamationTriangle, FaClipboardList, FaUserFriends } from 'react-icons/fa';
 
 const PharmacyDashboard = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState(null);
-    const [profile, setProfile] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [salesData, setSalesData] = useState([]);
 
-    // --- DUMMY DATA FOR SALES CHART ---
-    // This function generates sample data for the last 7 days.
-    const generateDummySalesData = () => {
-        const data = [];
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(today.getDate() - i);
-            // Using a short weekday name for labels (e.g., "Mon", "Tue")
-            const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
-            const sales = Math.floor(Math.random() * 500) + 50; // Random sales between $50 and $550
-            data.push({ date: dayLabel, totalSales: sales });
+  // Generate dummy sales data (7 days)
+  const generateDummySalesData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const sales = Math.floor(Math.random() * 500) + 50;
+      data.push({ date: dayLabel, totalSales: sales });
+    }
+    return data;
+  };
+
+  useEffect(() => {
+    const checkOnboardingAndFetchData = async () => {
+      if (!user) return;
+      try {
+        const { data: profileData } = await api.get('/users/profile');
+        if (!profileData.pharmacyProfile?.onboardingComplete) {
+          toast.info('Please complete your profile to access the dashboard.');
+          navigate('/pharmacy/onboarding');
+          return;
         }
-        return data;
+        setProfile(profileData);
+
+        const { data: statsData } = await api.get('/reports/dashboard-stats');
+        setStats(statsData);
+        setSalesData(generateDummySalesData());
+      } catch (error) {
+        toast.error('Could not fetch dashboard stats.');
+        console.error('Dashboard Load Error:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    checkOnboardingAndFetchData();
+  }, [user, navigate]);
 
-    const dummySalesData = generateDummySalesData();
-    // --- END OF DUMMY DATA ---
+  // Refresh dummy sales data automatically every hour (3600000 ms)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSalesData(generateDummySalesData());
+    }, 3600000); // 1 hour
+    return () => clearInterval(interval);
+  }, []);
 
-    useEffect(() => {
-        const checkOnboardingAndFetchData = async () => {
-            if (!user) return;
-            try {
-                const { data: profileData } = await api.get('/users/profile');
-                if (!profileData.pharmacyProfile?.onboardingComplete) {
-                    toast.info("Please complete your profile to access the dashboard.");
-                    navigate('/pharmacy/onboarding');
-                    return;
-                }
-                setProfile(profileData);
+  if (loading) {
+    return <div className="loading-spinner">Loading Dashboard...</div>;
+  }
 
-                const { data: statsData } = await api.get('/reports/dashboard-stats');
-                setStats(statsData);
+  if (!stats || !profile) {
+    return <div>Could not load dashboard data. Please try again later.</div>;
+  }
 
-            } catch (error) {
-                toast.error("Could not fetch dashboard stats.");
-                console.error("Dashboard Load Error:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        checkOnboardingAndFetchData();
-    }, [user, navigate]);
-
-    if (loading) {
-        return <div className="loading-spinner">Loading Dashboard...</div>;
-    }
-
-    if (!stats || !profile) {
-        return <div>Could not load dashboard data. Please try again later.</div>
-    }
-
-    return (
-        <div className="pharmacy-dashboard">
-            <header className="pd-header">
-                <h1>{profile.pharmacyProfile?.shopName || "Pharmacy Dashboard"}</h1>
-                <div className="pd-quick-actions">
-                    <Link to="/pharmacy/inventory" className="action-btn">Manage Inventory</Link>
-                    <Link to="/pharmacy/orders" className="action-btn primary">View Orders</Link>
-                </div>
-            </header>
-
-            <div className="metric-cards-grid">
-                <MetricCard icon={<FaBoxes />} title="Total Stock" value={stats.totalStock} />
-                <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`$${stats.todaysSales.toFixed(2)}`} />
-                <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders} />
-                <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems} />
-            </div>
-
-            <div className="dashboard-widgets-grid">
-                <div className="widget-card">
-                    <h3>Sales Trends (Last 7 Days)</h3>
-                    {/* The chart now receives the dummy data */}
-                    <SalesChart salesData={dummySalesData} />
-                </div>
-                <div className="widget-card">
-                    <h3>Recent Orders</h3>
-                    <RecentOrdersTable orders={stats.recentOrders} />
-                </div>
-            </div>
+  return (
+    <div className="pharmacy-dashboard">
+      <header className="pd-header">
+        <div className="pd-header-left">
+          <h1>{profile.pharmacyProfile?.shopName || 'Pharmacy Dashboard'}</h1>
+          <p className="pd-subtitle">
+            Welcome back, {user?.name}! <br />
+            Address: {profile.pharmacyProfile?.address || 'Not Provided'}
+          </p>
         </div>
-    );
+        <div className="pd-quick-actions">
+          <Link to="/pharmacy/inventory" className="action-btn">
+            Manage Inventory
+          </Link>
+          <Link to="/pharmacy/orders" className="action-btn primary">
+            View Orders
+          </Link>
+          <Link to="/pharmacy/profile" className="action-btn secondary">
+            Profile
+          </Link>
+        </div>
+      </header>
+
+      <div className="metric-cards-grid">
+        <MetricCard icon={<FaBoxes />} title="Total Stock" value={stats.totalStock} />
+        <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`$${stats.todaysSales.toFixed(2)}`} />
+        <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders} />
+        <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems} />
+        <MetricCard icon={<FaUserFriends />} title="Total Customers" value={stats.totalCustomers || 0} />
+      </div>
+
+      <div className="dashboard-widgets-grid">
+        <div className="widget-card">
+          <h3>Sales Trends (Last 7 Days)</h3>
+          <SalesChart salesData={salesData} />
+        </div>
+        <div className="widget-card">
+          <h3>Recent Orders</h3>
+          <RecentOrdersTable orders={stats.recentOrders} />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PharmacyDashboard;
-

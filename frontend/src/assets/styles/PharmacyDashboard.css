@@ -1,114 +1,127 @@
 /* Main Dashboard Container */
 .pharmacy-dashboard {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 1.5rem;
+  max-width: 1300px;
+  margin: 2rem auto;
+  padding: 1.5rem;
 }
 
 /* Header Section */
 .pd-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border-radius: 10px;
+  color: white;
 }
 
-.pd-header h1 {
-    font-size: 2.2rem;
-    margin: 0;
-    color: var(--text-color);
+.pd-header-left h1 {
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.pd-subtitle {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  line-height: 1.4;
 }
 
 .pd-quick-actions {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 0.8rem;
 }
 
 .action-btn {
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-    background-color: transparent;
-    transition: all 0.2s ease-in-out;
-    text-align: center;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid white;
+  color: white;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
 }
 
 .action-btn:hover {
-    background-color: #eff6ff; /* Light blue on hover */
-    color: var(--secondary-color);
-    border-color: var(--secondary-color);
-}
-
-.dark .action-btn:hover {
-    background-color: #1e293b;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #f3f3f3;
 }
 
 .action-btn.primary {
-    background-color: var(--primary-color);
-    color: white;
+  background-color: #ffffff;
+  color: var(--primary-color);
+  border-color: white;
 }
 
 .action-btn.primary:hover {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
+  background-color: #f0f0f0;
+  color: var(--secondary-color);
+}
+
+.action-btn.secondary {
+  background-color: transparent;
+  color: #f9f9f9;
+  border-color: #f9f9f9;
 }
 
 /* Metric Cards Grid */
 .metric-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 /* Main Dashboard Widgets (Chart and Table) */
 .dashboard-widgets-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
 .widget-card {
-    background: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 12px -2px rgb(0 0 0 / 0.1), 0 3px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .widget-card h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: var(--text-color);
 }
 
 /* Utility & Loading Styles */
 .loading-spinner {
-    text-align: center;
-    padding: 3rem;
-    font-size: 1.2rem;
-    font-weight: 500;
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 992px) {
-    .dashboard-widgets-grid {
-        grid-template-columns: 1fr;
-    }
+  .dashboard-widgets-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-    .pd-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .pd-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pd-quick-actions {
+    flex-wrap: wrap;
+  }
 }
-
