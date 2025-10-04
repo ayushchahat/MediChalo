@@ -12,13 +12,14 @@ const DeliveryDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
+
     const [profile, setProfile] = useState(null);
     const [isOnline, setIsOnline] = useState(false);
     const [assignedOrders, setAssignedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('dashboard');
 
-    // Initial data fetch and onboarding check
+    // Initialize dashboard and fetch profile/orders
     useEffect(() => {
         const initializeDashboard = async () => {
             if (!user) return;
@@ -30,8 +31,11 @@ const DeliveryDashboard = () => {
                 } else {
                     setProfile(data);
                     setIsOnline(data.deliveryProfile.isOnline || false);
+
                     const { data: ordersData } = await api.get('/orders/my-orders');
-                    setAssignedOrders(ordersData.filter(o => o.status !== 'Delivered' && o.status !== 'Rejected by Partner'));
+                    setAssignedOrders(
+                        ordersData.filter(o => o.status !== 'Delivered' && o.status !== 'Rejected by Partner')
+                    );
                 }
             } catch (error) {
                 toast.error("Could not fetch your profile data.");
@@ -40,30 +44,27 @@ const DeliveryDashboard = () => {
                 setLoading(false);
             }
         };
+
         initializeDashboard();
     }, [user, navigate]);
 
     // WebSocket listener for new orders
     useEffect(() => {
-        if (socket) {
-            const handleNewAssignment = (newOrder) => {
-                toast.success("You have a new delivery assignment!");
-                setAssignedOrders(prevOrders => {
-                    if (prevOrders.some(o => o._id === newOrder._id)) {
-                        return prevOrders;
-                    }
-                    return [newOrder, ...prevOrders];
-                });
-            };
+        if (!socket) return;
 
-            socket.on('new_assignment', handleNewAssignment);
+        const handleNewAssignment = (newOrder) => {
+            toast.success("You have a new delivery assignment!");
+            setAssignedOrders(prevOrders => {
+                if (prevOrders.some(o => o._id === newOrder._id)) return prevOrders;
+                return [newOrder, ...prevOrders];
+            });
+        };
 
-            return () => {
-                socket.off('new_assignment', handleNewAssignment);
-            };
-        }
+        socket.on('new_assignment', handleNewAssignment);
+        return () => socket.off('new_assignment', handleNewAssignment);
     }, [socket]);
 
+    // Toggle online/offline status
     const handleToggleOnline = async () => {
         const newStatus = !isOnline;
         try {
@@ -75,6 +76,7 @@ const DeliveryDashboard = () => {
         }
     };
 
+    // Update assigned orders after changes from OrderCard
     const handleOrderUpdate = (updatedOrder) => {
         if (updatedOrder.status === 'Delivered' || updatedOrder.status === 'Rejected by Partner') {
             setAssignedOrders(prev => prev.filter(o => o._id !== updatedOrder._id));
@@ -83,9 +85,7 @@ const DeliveryDashboard = () => {
         }
     };
 
-    if (loading) {
-        return <div className="loading-spinner">Loading Dashboard...</div>;
-    }
+    if (loading) return <div className="loading-spinner">Loading Dashboard...</div>;
 
     return (
         <div className="delivery-dashboard-container">
@@ -100,13 +100,25 @@ const DeliveryDashboard = () => {
             </header>
 
             <nav className="dd-tabs">
-                <Link to="/delivery/dashboard" className={`dd-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+                <Link
+                    to="/delivery/dashboard"
+                    className={`dd-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('dashboard')}
+                >
                     Active Deliveries
                 </Link>
-                <Link to="/delivery/history" className={`dd-tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+                <Link
+                    to="/delivery/history"
+                    className={`dd-tab ${activeTab === 'history' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('history')}
+                >
                     <FaHistory /> History
                 </Link>
-                <Link to="/delivery/earnings" className={`dd-tab ${activeTab === 'earnings' ? 'active' : ''}`} onClick={() => setActiveTab('earnings')}>
+                <Link
+                    to="/delivery/earnings"
+                    className={`dd-tab ${activeTab === 'earnings' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('earnings')}
+                >
                     <FaDollarSign /> Earnings
                 </Link>
             </nav>
@@ -116,7 +128,11 @@ const DeliveryDashboard = () => {
                     <div className="no-orders-card-stylish">
                         <FaBoxOpen className="no-orders-icon" />
                         <h2>No Active Deliveries</h2>
-                        <p>{isOnline ? "You're all set! We'll notify you as soon as an order comes in." : "You are currently offline. Toggle your status to start receiving orders."}</p>
+                        <p>
+                            {isOnline
+                                ? "You're all set! We'll notify you as soon as an order comes in."
+                                : "You are currently offline. Toggle your status to start receiving orders."}
+                        </p>
                     </div>
                 ) : (
                     <div className="orders-grid">
@@ -131,4 +147,3 @@ const DeliveryDashboard = () => {
 };
 
 export default DeliveryDashboard;
-

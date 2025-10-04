@@ -1,0 +1,30 @@
+.delivery-track-page { max-width: 1200px; margin: 2rem auto; padding: 1.5rem; }
+.dtp-header { text-align: center; margin-bottom: 2rem; }
+.dtp-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.dtp-details-panel { display: flex; flex-direction: column; gap: 1rem; }
+.address-card {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.address-card svg { font-size: 1.8rem; color: var(--primary-color); }
+.dtp-map-panel { height: 400px; border-radius: 12px; overflow: hidden; }
+.dtp-actions { display: flex; justify-content: center; gap: 1rem; }
+.action-btn { padding: 0.8rem 1.5rem; border-radius: 8px; /* ... */ }
+.action-btn.navigate { background-color: #1d4ed8; color: white; }
+.action-btn.pickup { background-color: #f59e0b; color: white; }
+.action-btn.confirm { background-color: var(--success-color); color: white; }
+
+@media (max-width: 992px) {
+    .dtp-main-grid { grid-template-columns: 1fr; }
+    .dtp-map-panel { grid-row: 1; }
+}

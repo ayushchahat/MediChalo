@@ -2,61 +2,55 @@ const express = require('express');
 const router = express.Router();
 const {
     createOrder,
+    createOrderFromCart,
     getMyOrders,
     getPharmacyOrders,
     updateOrderStatus,
     assignDeliveryPartner,
     confirmDelivery,
     downloadInvoice,
-    createOrderFromCart,
-    getOrderTrackingDetails   // ✅ import tracking controller
+    getOrderTrackingDetails
 } = require('../controllers/orderController');
 const { protect, hasRole } = require('../middleware/authMiddleware');
 const { uploadPrescription } = require('../middleware/uploadMiddleware');
 
-// @route   POST /api/orders
-// @desc    Create a new order from a prescription upload.
-// @access  Private (Customer)
+// ==========================
+// Customer Routes
+// ==========================
+
+// Create a new order from a prescription upload
 router.post('/', protect, hasRole(['Customer']), uploadPrescription, createOrder);
 
-// @route   POST /api/orders/cart
-// @desc    Create a new order from the customer's shopping cart.
-// @access  Private (Customer)
+// Create a new order from the customer's shopping cart
 router.post('/cart', protect, hasRole(['Customer']), createOrderFromCart);
 
-// @route   GET /api/orders/my-orders
-// @desc    Get all orders for the currently logged-in user (Customer or Delivery Partner).
-// @access  Private (Customer, DeliveryPartner)
+// Get all orders for the currently logged-in user (Customer or Delivery Partner)
 router.get('/my-orders', protect, hasRole(['Customer', 'DeliveryPartner']), getMyOrders);
 
-// @route   GET /api/orders/pharmacy-orders
-// @desc    Get all incoming orders for the currently logged-in pharmacy.
-// @access  Private (Pharmacy)
-router.get('/pharmacy-orders', protect, hasRole(['Pharmacy']), getPharmacyOrders);
+// Get real-time tracking details of an order (Customer or Delivery Partner)
+router.get('/:id/track', protect, hasRole(['Customer', 'DeliveryPartner']), getOrderTrackingDetails);
 
-// @route   GET /api/orders/:id/invoice
-// @desc    Download a PDF invoice for a specific order.
-// @access  Private (Customer, Pharmacy)
+// Download a PDF invoice for a specific order
 router.get('/:id/invoice', protect, hasRole(['Customer', 'Pharmacy']), downloadInvoice);
 
-// @route   GET /api/orders/:id/track
-// @desc    Get real-time tracking details of an order
-// @access  Private (Customer)
-router.get('/:id/track', protect, hasRole(['Customer']), getOrderTrackingDetails);
+// ==========================
+// Pharmacy Routes
+// ==========================
 
-// @route   PUT /api/orders/:id/status
-// @desc    Update the status of an order.
-// @access  Private (Pharmacy, DeliveryPartner)
-router.put('/:id/status', protect, hasRole(['Pharmacy', 'DeliveryPartner']), updateOrderStatus);
+// Get all incoming orders for the currently logged-in pharmacy
+router.get('/pharmacy-orders', protect, hasRole(['Pharmacy']), getPharmacyOrders);
 
-// @route   PUT /api/orders/:id/assign
-// @desc    Assign a delivery partner to a ready order.
-// @access  Private (Pharmacy)
+// Assign a delivery partner to a ready order
 router.put('/:id/assign', protect, hasRole(['Pharmacy']), assignDeliveryPartner);
 
-// @route   PUT /api/orders/:id/confirm-delivery
-// @desc    Confirm a successful delivery using an OTP.
-// @access  Private (DeliveryPartner)
+// ==========================
+// Status & Delivery Routes
+// ==========================
+
+// Update the status of an order (Pharmacy or Delivery Partner)
+router.put('/:id/status', protect, hasRole(['Pharmacy', 'DeliveryPartner']), updateOrderStatus);
+
+// Confirm a successful delivery using an OTP (Delivery Partner)
 router.put('/:id/confirm-delivery', protect, hasRole(['DeliveryPartner']), confirmDelivery);
 
 module.exports = router;

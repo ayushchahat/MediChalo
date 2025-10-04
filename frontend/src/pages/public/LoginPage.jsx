@@ -17,31 +17,43 @@ const LoginPage = () => {
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [loginResponseData, setLoginResponseData] = useState(null);
 
-    // Handles final redirection after login and any onboarding checks
+    /**
+     * Handles final redirection after login
+     * Checks onboarding completion and navigates to correct dashboard
+     */
     const proceedToApp = (data) => {
         const role = data.role.toLowerCase();
+
         if (role === 'pharmacy' && !data.pharmacyProfile?.onboardingComplete) {
             navigate('/pharmacy/onboarding');
         } else if (role === 'deliverypartner' && !data.deliveryProfile?.onboardingComplete) {
             navigate('/delivery/onboarding');
         } else {
-            navigate(`/${role}/dashboard`);
+            // Map role to dashboard path
+            let pathRole = role;
+            if (role === 'deliverypartner') pathRole = 'delivery';
+            navigate(`/${pathRole}/dashboard`);
         }
     };
 
+    /**
+     * Form submission handler
+     * Logs in the user and handles location capture modal
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const { data } = await api.post('/auth/login', { email, password });
-            login(data.token); // Save JWT in auth context/localStorage
+
+            // Save JWT token
+            login(data.token);
             toast.success('Logged in successfully!');
 
             if (!data.locationCaptured) {
-                // Show location modal if location not yet captured
+                // Show modal if location not captured
                 setLoginResponseData(data);
                 setShowLocationModal(true);
             } else {
-                // Proceed directly if location already exists
                 proceedToApp(data);
             }
         } catch (error) {
@@ -49,8 +61,12 @@ const LoginPage = () => {
         }
     };
 
+    /**
+     * Handles user's response to location permission modal
+     */
     const handleLocationPermission = (granted) => {
         setShowLocationModal(false);
+
         if (granted) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
@@ -58,11 +74,10 @@ const LoginPage = () => {
                     try {
                         await api.put('/users/location', { latitude, longitude });
                         toast.success('Location saved!');
-                        proceedToApp(loginResponseData);
-                    } catch (error) {
+                    } catch (err) {
                         toast.error('Could not save location. Proceeding anyway.');
-                        proceedToApp(loginResponseData);
                     }
+                    proceedToApp(loginResponseData);
                 },
                 () => {
                     toast.warn('Could not get location. You can set it later.');
@@ -81,6 +96,7 @@ const LoginPage = () => {
                 isOpen={showLocationModal}
                 onPermission={handleLocationPermission}
             />
+
             <div className="auth-container">
                 <div className="auth-form-card">
                     <div className="auth-header">
@@ -127,7 +143,10 @@ const LoginPage = () => {
 
                     <div className="auth-footer">
                         <p>
-                            Don't have an account? <Link to="/signup" className="auth-link">Sign Up</Link>
+                            Don't have an account?{' '}
+                            <Link to="/signup" className="auth-link">
+                                Sign Up
+                            </Link>
                         </p>
                     </div>
                 </div>
