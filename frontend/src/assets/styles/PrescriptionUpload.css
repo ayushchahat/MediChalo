@@ -1,49 +1,39 @@
-.prescription-upload h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-}
-
-.prescription-upload p {
-    opacity: 0.8;
-    margin-bottom: 1.5rem;
-}
-
-/* Hide the default file input */
-.prescription-upload input[type="file"] {
-    display: none;
-}
-
-.upload-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+.upload-card {
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     padding: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.file-input { display: none; }
+.file-input-label {
+    padding: 0.8rem 1.5rem;
     border: 2px dashed var(--border-color);
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
+    transition: all 0.2s;
 }
-
-.upload-label:hover {
-    border-color: var(--primary-color);
-    background-color: var(--background-color);
-}
-
-.upload-label.file-selected {
-    border-color: var(--success-color);
-    color: var(--success-color);
-}
-
-.upload-button {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--secondary-color);
+.file-input-label:hover { border-color: var(--primary-color); }
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 2rem;
+    background-color: var(--primary-color);
     color: white;
+    font-weight: 600;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
-    margin-top: 1rem;
 }
+.upload-btn:disabled { background-color: #9ca3af; }
+

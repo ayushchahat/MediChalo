@@ -28,7 +28,7 @@ const DeliveryEarningsPage = () => {
             <div className="earnings-summary">
                 <div className="earnings-card">
                     <h2>Total Earnings</h2>
-                    <p>${earnings?.totalEarnings.toFixed(2) || '0.00'}</p>
+                    <p>₹{earnings?.totalEarnings.toFixed(2) || '0.00'}</p>
                 </div>
                 <div className="earnings-card">
                     <h2>Total Deliveries</h2>

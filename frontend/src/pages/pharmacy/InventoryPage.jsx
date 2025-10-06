@@ -111,7 +111,7 @@ const InventoryPage = () => {
                                 <th>Medicine Name</th>
                                 <th>Batch No.</th>
                                 <th>Stock</th>
-                                <th>Price ($)</th>
+                                <th>Price (₹)</th>
                                 <th>Expiry Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -158,7 +158,7 @@ const InventoryPage = () => {
                         <input type="number" name="quantity" value={selectedMedicine?.quantity || ''} onChange={handleUpdateChange} />
                     </div>
                     <div className="form-group">
-                        <label>Price ($)</label>
+                        <label>Price (₹)</label>
                         <input type="number" step="0.01" name="price" value={selectedMedicine?.price || ''} onChange={handleUpdateChange} />
                     </div>
                     <div className="form-group">

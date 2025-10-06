@@ -28,12 +28,24 @@ app.set('io', io);
 
 // --- Core Middleware ---
 
-// ✅ Configure CORS properly
+// ✅ Configure CORS properly (for both dev + production)
+const allowedOrigins = [
+  'http://localhost:3000',                  // Local frontend (dev)
+  'https://medichalo-frontend.onrender.com' // Deployed frontend (prod)
+];
+
 app.use(cors({
-  origin: 'https://medichalo-frontend.onrender.com', // your frontend URL
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed for this origin'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // enable if you’re using cookies or auth headers
+  credentials: true
 }));
 
 // Make sure Express can handle JSON and URL-encoded payloads

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../hooks/useLanguage';
 import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../../hooks/useLanguage';
 
-import MedicineSearch from './MedicineSearch';
 import MedicineCard from './MedicineCard';
+import MedicineSearch from './MedicineSearch';
 import PrescriptionUpload from './PrescriptionUpload';
 import ActiveOrders from './ActiveOrders';
 
@@ -18,24 +18,39 @@ const CustomerDashboard = () => {
   const [loadingMedicines, setLoadingMedicines] = useState(true);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [customerLocation, setCustomerLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [customerName, setCustomerName] = useState(''); // ✅ new state for name
 
-  // Fetch all medicines
+  // Initialize dashboard
   useEffect(() => {
-    const fetchMedicines = async () => {
+    const initializeDashboard = async () => {
       try {
+        const { data: profileData } = await api.get('/users/profile');
+
+        // ✅ store name and location from profile
+        if (profileData) {
+          setCustomerName(profileData.name || 'Customer');
+          if (profileData.location?.coordinates) {
+            setCustomerLocation(profileData.location.coordinates);
+          }
+        }
+
         const { data } = await api.get('/inventory/available');
         setAllMedicines(data);
         setFilteredMedicines(data);
       } catch (error) {
-        toast.error(t('fetch_medicines_error') || 'Could not fetch medicines.');
+        console.error('Error loading dashboard:', error);
+        toast.error(t('dashboard_load_error') || 'Could not load dashboard data.');
       } finally {
         setLoadingMedicines(false);
+        setLoading(false);
       }
     };
-    fetchMedicines();
+    initializeDashboard();
   }, [t]);
 
-  // Fetch customer's orders
+  // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
       setLoadingOrders(true);
@@ -43,7 +58,7 @@ const CustomerDashboard = () => {
         const { data } = await api.get('/orders/my-orders');
         setOrders(data);
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        console.error('Failed to fetch orders:', error);
       } finally {
         setLoadingOrders(false);
       }
@@ -51,15 +66,20 @@ const CustomerDashboard = () => {
     fetchOrders();
   }, []);
 
-  const handleSearch = (searchTerm) => {
-    if (!searchTerm) {
+  const handleSearchResults = async (keyword) => {
+    if (!keyword) {
       setFilteredMedicines(allMedicines);
-    } else {
-      const lowercasedTerm = searchTerm.toLowerCase();
-      const filtered = allMedicines.filter((med) =>
-        med.name.toLowerCase().includes(lowercasedTerm)
-      );
-      setFilteredMedicines(filtered);
+      return;
+    }
+    try {
+      setLoadingMedicines(true);
+      const { data } = await api.get(`/inventory/search?keyword=${encodeURIComponent(keyword)}`);
+      setFilteredMedicines(data);
+    } catch (error) {
+      console.error('Search failed:', error);
+      toast.error(t('search_error') || 'Search failed. Please try again.');
+    } finally {
+      setLoadingMedicines(false);
     }
   };
 
@@ -68,17 +88,36 @@ const CustomerDashboard = () => {
     return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  if (loading) {
+    return <div className="loading-spinner">{t('loading_dashboard') || 'Loading Dashboard...'}</div>;
+  }
+
   return (
     <div className="customer-dashboard">
       {/* Header */}
       <div className="dashboard-header">
-        <h1>{t('welcome_customer') || 'Welcome!'}</h1>
-        <p>{t('customer_dashboard_subtitle') || 'Your one-stop solution for medicines, delivered right to your door.'}</p>
+        <h1>{t(`Welcome, ${customerName}👋`) || `Welcome, ${customerName}👋`}</h1>
+        <p>
+          {t('Your one-stop solution for medicines, delivered right to your door.') ||
+            'Your one-stop solution for medicines, delivered right to your door.'}
+        </p>
       </div>
 
-      {/* Search Section */}
-      <div className="dashboard-search">
-        <MedicineSearch onSearch={handleSearch} />
+      {/* Search + Upload */}
+      <div className="dashboard-top-grid">
+        <div className="search-section">
+          <h2>{t('Find Medicines') || 'Find Medicines'}</h2>
+          <p>
+            {t('Search for medicines and get them delivered quickly.') ||
+              'Search for medicines and get them delivered quickly.'}
+          </p>
+          <MedicineSearch onSearch={handleSearchResults} customerLocation={customerLocation} />
+        </div>
+
+        <div className="prescription-section">
+          <h2>{t('Upload Prescription') || 'Upload Prescription'}</h2>
+          <PrescriptionUpload />
+        </div>
       </div>
 
       {/* Medicines Grid */}
@@ -86,32 +125,33 @@ const CustomerDashboard = () => {
         {loadingMedicines ? (
           <div className="loading-spinner">{t('loading_medicines') || 'Loading Medicines...'}</div>
         ) : filteredMedicines.length > 0 ? (
-          filteredMedicines.map((med) => <MedicineCard key={med._id} medicine={med} />)
+          filteredMedicines.map((medicine) => (
+            <MedicineCard
+              key={medicine._id}
+              medicine={medicine}
+              customerLocation={customerLocation}
+            />
+          ))
         ) : (
           <p>{t('no_medicines_found') || 'No medicines found matching your search.'}</p>
         )}
       </div>
 
-      {/* Prescription Upload + Active Orders */}
-      <div className="dashboard-grid">
-        <div className="grid-item">
-          <PrescriptionUpload />
-        </div>
-        <div className="grid-item">
-          <ActiveOrders />
-        </div>
+      {/* Active Orders */}
+      <div className="dashboard-active-orders">
+        <ActiveOrders />
       </div>
 
-      {/* My Orders Section */}
+      {/* My Orders */}
       <div className="dashboard-orders">
-        <h2>My Orders</h2>
+        <h2>{t('My Orders') || 'My Orders'}</h2>
         {loadingOrders ? (
-          <p>Loading your orders...</p>
+          <p>{t('loading_orders') || 'Loading your orders...'}</p>
         ) : orders.length === 0 ? (
-          <p>You have no orders yet.</p>
+          <p>{t('no_orders') || 'You have no orders yet.'}</p>
         ) : (
           <div className="orders-list-dashboard">
-            {orders.map(order => (
+            {orders.map((order) => (
               <div key={order._id} className="order-card-dashboard">
                 <p><strong>Order ID:</strong> {order._id}</p>
                 <p><strong>Status:</strong> {order.status}</p>
@@ -119,7 +159,7 @@ const CustomerDashboard = () => {
                   <p><strong>ETA:</strong> {formatTime(order.eta)}</p>
                 )}
                 <Link to={`/track-order/${order._id}`} className="track-order-btn">
-                  Track Order
+                  {t('Track Order') || 'Track Order'}
                 </Link>
               </div>
             ))}

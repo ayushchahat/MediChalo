@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+    createPrescriptionOrder,
     createOrder,
     createOrderFromCart,
     getMyOrders,
@@ -19,6 +20,9 @@ const { uploadPrescription } = require('../middleware/uploadMiddleware');
 // ==========================
 
 // Create a new order from a prescription upload
+router.post('/prescription', protect, hasRole(['Customer']), uploadPrescription, createPrescriptionOrder);
+
+// Create a new order from the customer frontend form
 router.post('/', protect, hasRole(['Customer']), uploadPrescription, createOrder);
 
 // Create a new order from the customer's shopping cart

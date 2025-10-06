@@ -35,27 +35,55 @@
 
 .cart-item-details {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.cart-item-info span {
-    display: block;
-}
-.cart-item-info .item-name {
+.item-name {
     font-weight: 600;
-}
-.cart-item-info .item-price {
-    font-size: 0.9rem;
-    opacity: 0.8;
+    font-size: 1.1rem;
 }
 
-.remove-item-btn {
-    background: none;
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+/* Base style for + and - buttons */
+.quantity-btn {
+    background-color: var(--primary-color);
+    color: white;
     border: none;
-    color: var(--error-color);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
+    transition: all 0.25s ease;
+}
+
+/* Hover colors for + and - */
+.quantity-btn.minus:hover {
+    background-color: #e53935; /* red for minus */
+}
+
+.quantity-btn.plus:hover {
+    background-color: #43a047; /* green for plus */
+}
+
+.quantity-value {
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+}
+
+.item-total {
+    font-weight: bold;
 }
 
 .cart-summary {
@@ -64,26 +92,7 @@
     border-radius: 12px;
     padding: 1.5rem;
     position: sticky;
-    top: 100px; /* Adjust based on navbar height */
-}
-
-.cart-summary h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.summary-total {
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-top: 1px solid var(--border-color);
-    padding-top: 1rem;
-    margin-top: 1rem;
+    top: 100px;
 }
 
 .place-order-btn {
@@ -96,7 +105,7 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: opacity 0.2s;
 }
 
 .place-order-btn:hover {
@@ -107,5 +116,14 @@
     .cart-content {
         grid-template-columns: 1fr;
     }
-}
 
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cart-item-actions {
+        align-self: flex-end;
+        margin-top: 0.5rem;
+    }
+}

@@ -1,124 +1,179 @@
-.medicine-search h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-    color: var(--text-color);
+/* ========== Medicine Search Container ========== */
+.medicine-search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.search-form {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+/* ========== Search Form ========== */
+.medicine-search-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
 }
 
-.search-input-group {
-    position: relative;
-    flex-grow: 1;
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 1; /* input takes available space */
+  min-width: 0; /* prevents overflow in flex container */
 }
 
 .search-icon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    color: var(--text-color);
-    opacity: 0.4;
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: var(--text-color);
+  opacity: 0.5;
+  font-size: 1rem;
 }
 
 .search-input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-size: 1rem;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem; /* left padding for icon */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.search-button {
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
-.search-results {
-    min-height: 50px;
+/* ========== Search Button ========== */
+.search-btn {
+  flex-shrink: 0; /* prevents shrinking */
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.search-message {
-    text-align: center;
-    color: var(--text-color);
-    opacity: 0.7;
-    padding: 1rem;
+.search-btn:hover {
+  background-color: #0056b3;
 }
 
-.results-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.search-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
+/* ========== Search Results ========== */
+.search-results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.loading-spinner.small {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-color);
+  min-height: 50px;
+}
+
+.no-results-message {
+  text-align: center;
+  color: var(--text-color);
+  opacity: 0.7;
+  padding: 1rem;
+  font-size: 0.95rem;
+}
+
+/* ========== Results Grid ========== */
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* ========== Individual Result Card Styles ========== */
 .result-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--card-bg-color);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
 }
 
-.result-item:last-child {
-    border-bottom: none;
+.result-item:hover {
+  transform: translateY(-2px);
 }
 
 .pill-icon {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    margin-right: 1rem;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-right: 1rem;
 }
 
 .med-info {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .med-name {
-    font-weight: 600;
-    color: var(--text-color);
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
 }
 
 .pharmacy-name {
-    font-size: 0.85rem;
-    opacity: 0.7;
+  font-size: 0.85rem;
+  opacity: 0.7;
 }
 
 .med-details {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .med-price {
-    font-weight: bold;
-    color: var(--success-color);
+  font-weight: bold;
+  color: var(--success-color);
 }
 
 .med-stock {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-weight: 500;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
 }
 
 .in-stock {
-    background-color: #d1fae5;
-    color: #065f46;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .low-stock {
-    background-color: #fee2e2;
-    color: #991b1b;
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .medicine-search-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
 }

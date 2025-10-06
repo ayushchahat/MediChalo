@@ -1,72 +1,201 @@
+/* ===============================
+   Order Management Card
+================================= */
 .omc-card {
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* Stretch to match grid row */
+  word-wrap: break-word;
 }
 
+.omc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
 .omc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .omc-order-id {
-    font-weight: 600;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .omc-status-tag {
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-.status-pending { background-color: #fef3c7; color: #92400e; }
-.status-approved { background-color: #d1fae5; color: #065f46; }
-.status-rejected { background-color: #fee2e2; color: #991b1b; }
-.status-ready-for-delivery { background-color: #dbeafe; color: #1e40af; }
 
+/* Status Colors */
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+.status-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+.status-ready-for-delivery {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Body Section */
 .omc-body {
-    padding: 1.5rem 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+  flex: 1; /* Grow to push footer down */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  overflow: hidden;
 }
 
-.omc-customer-details h4, .omc-prescription h4 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
+/* Customer Details */
+.omc-customer-details h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
 }
-.omc-customer-details p { margin: 0.3rem 0; }
 
+.omc-customer-details p {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+  color: var(--muted-text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Prescription Section */
 .omc-prescription a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  word-break: break-all;
 }
 
+.omc-prescription a:hover {
+  text-decoration: underline;
+}
+
+/* Ordered Medicines */
+.omc-ordered-medicines {
+  margin-top: 0.6rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  overflow-y: auto;
+  max-height: 140px;
+}
+
+.omc-ordered-medicines::-webkit-scrollbar {
+  width: 6px;
+}
+.omc-ordered-medicines::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.omc-ordered-medicines h4 {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--text-color);
+}
+
+.omc-ordered-medicines ul {
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.omc-ordered-medicines li {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--muted-text-color);
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+/* Footer Buttons */
 .omc-footer {
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .omc-btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  min-width: 120px;
+  text-align: center;
+  color: #fff;
 }
-.omc-btn:hover { opacity: 0.85; }
 
-.omc-btn.approve { background-color: var(--success-color); color: white; }
-.omc-btn.reject { background-color: var(--error-color); color: white; }
-.omc-btn.ready { background-color: var(--primary-color); color: white; }
+.omc-btn:hover {
+  opacity: 0.85;
+}
+
+.omc-btn.approve {
+  background-color: var(--success-color);
+}
+.omc-btn.reject {
+  background-color: var(--error-color);
+}
+.omc-btn.ready {
+  background-color: var(--primary-color);
+}
+
+/* Responsive Cards */
+@media (max-width: 768px) {
+  .omc-footer {
+    justify-content: center;
+  }
+
+  .omc-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .omc-card {
+    padding: 1rem;
+  }
+
+  .omc-ordered-medicines {
+    max-height: 160px;
+  }
+}

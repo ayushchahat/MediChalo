@@ -119,7 +119,7 @@ const OrderCard = ({ orderData, onUpdate }) => {
             </div>
 
             <div className="order-details">
-                <p><strong>Payment:</strong> ${order.totalAmount?.toFixed(2) || '0.00'}</p>
+                <p><strong>Payment:</strong> ₹{order.totalAmount?.toFixed(2) || '0.00'}</p>
             </div>
 
             {renderActions()}

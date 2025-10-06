@@ -8,6 +8,41 @@ const { calculateETA } = require('../utils/etaCalculator');
 
 // ==========================
 // Create a new order from prescription upload
+// @desc    Create a new order from a prescription
+// @route   POST /api/orders/prescription
+// @access  Private (Customer)
+const createPrescriptionOrder = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No prescription file uploaded.' });
+    }
+
+    try {
+        const pharmacyUser = await User.findOne({ role: 'Pharmacy' });
+        if (!pharmacyUser) {
+            return res.status(404).json({ message: 'No pharmacies are currently available.' });
+        }
+
+        const order = new Order({
+            customer: req.user._id,
+            pharmacy: pharmacyUser._id,
+            status: 'Pending',
+            prescriptionImage: req.file.path,
+        });
+
+        const createdOrder = await order.save();
+
+        const io = req.app.get('io');
+        io.to(pharmacyUser._id.toString()).emit('new_order', createdOrder);
+
+        res.status(201).json(createdOrder);
+    } catch (error) {
+        console.error("PRESCRIPTION ORDER ERROR:", error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
+
+// ==========================
+// Create a new order from frontend form
 // ==========================
 const createOrder = async (req, res) => {
   const { orderItems, pharmacyId, deliveryAddress, totalAmount } = req.body;
@@ -27,7 +62,6 @@ const createOrder = async (req, res) => {
 
     const createdOrder = await order.save();
 
-    // Notify pharmacy via WebSocket
     const io = req.app.get('io');
     io.to(pharmacyId.toString()).emit('new_order', createdOrder);
 
@@ -39,7 +73,7 @@ const createOrder = async (req, res) => {
 };
 
 // ==========================
-// Create a new order from shopping cart
+// Create order from shopping cart
 // ==========================
 const createOrderFromCart = async (req, res) => {
   const { cartItems, deliveryAddress } = req.body;
@@ -88,7 +122,6 @@ const createOrderFromCart = async (req, res) => {
 
       const createdOrder = await order.save();
 
-      // Deduct stock
       for (const item of orderMedicines) {
         await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
       }
@@ -142,7 +175,7 @@ const getPharmacyOrders = async (req, res) => {
 };
 
 // ==========================
-// Update an order's status (Pharmacy & Delivery Partner)
+// Update order status
 // ==========================
 const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
@@ -150,7 +183,7 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    // PHARMACY LOGIC
+    // Pharmacy status updates
     const pharmacyStatuses = ['Approved', 'Rejected', 'Ready for Delivery', 'Cancelled'];
     if (req.user.role === 'Pharmacy' && pharmacyStatuses.includes(status)) {
       if (order.pharmacy.toString() !== req.user._id.toString()) {
@@ -165,7 +198,6 @@ const updateOrderStatus = async (req, res) => {
 
       order.status = status;
 
-      // Auto-assign delivery partner
       if (status === 'Ready for Delivery') {
         const availablePartner = await DeliveryPartner.findOne({ isOnline: true });
         if (availablePartner) {
@@ -192,7 +224,7 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
-    // DELIVERY PARTNER LOGIC
+    // Delivery Partner status updates
     const partnerStatuses = ['Accepted by Partner', 'Out for Delivery'];
     if (req.user.role === 'DeliveryPartner' && partnerStatuses.includes(status)) {
       if (order.deliveryPartner.toString() !== req.user._id.toString()) {
@@ -331,6 +363,7 @@ const getOrderTrackingDetails = async (req, res) => {
 };
 
 module.exports = {
+  createPrescriptionOrder,
   createOrder,
   createOrderFromCart,
   getMyOrders,

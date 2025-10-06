@@ -79,7 +79,6 @@ const PharmacyDashboard = () => {
           <h1>{profile.pharmacyProfile?.shopName || 'Pharmacy Dashboard'}</h1>
           <p className="pd-subtitle">
             Welcome back, {user?.name}! <br />
-            Address: {profile.pharmacyProfile?.address || 'Not Provided'}
           </p>
         </div>
         <div className="pd-quick-actions">
@@ -97,7 +96,7 @@ const PharmacyDashboard = () => {
 
       <div className="metric-cards-grid">
         <MetricCard icon={<FaBoxes />} title="Total Stock" value={stats.totalStock} />
-        <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`$${stats.todaysSales.toFixed(2)}`} />
+        <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`₹${stats.todaysSales.toFixed(2)}`} />
         <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders} />
         <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems} />
         <MetricCard icon={<FaUserFriends />} title="Total Customers" value={stats.totalCustomers || 0} />

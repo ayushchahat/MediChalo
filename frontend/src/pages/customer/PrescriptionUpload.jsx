@@ -1,60 +1,61 @@
 import React, { useState } from 'react';
 import api from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
-import { FaUpload, FaCheckCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUpload } from 'react-icons/fa';
 import '../../assets/styles/PrescriptionUpload.css';
 
 const PrescriptionUpload = () => {
-    const [file, setFile] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    
-    // This is a placeholder. In a real app, you'd fetch pharmacies
-    // or have the user select one.
-    const placeholderPharmacyId = "60c72b2f9b1d8c001c8e4d8c";
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        setSelectedFile(e.target.files[0]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) {
-            toast.error("Please select a file to upload.");
+        if (!selectedFile) {
+            toast.error("Please select a prescription file to upload.");
             return;
         }
+        setIsUploading(true);
 
-        setUploading(true);
         const formData = new FormData();
-        formData.append('prescription', file);
-        // IMPORTANT: You need to send a pharmacyId. This should come from a selection UI.
-        formData.append('pharmacyId', placeholderPharmacyId); 
+        formData.append('prescription', selectedFile);
 
         try {
-            await api.post('/orders/upload', formData, {
+            await api.post('/orders/prescription', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            toast.success("Prescription uploaded successfully! A pharmacy will review it shortly.");
-            setFile(null); // Reset file input
+            toast.success("Prescription uploaded successfully! Your order has been placed.");
+            // Redirect to the order history page to see the new pending order
+            navigate('/customer/orders');
         } catch (error) {
-            console.error("Upload failed:", error);
-            toast.error(error.response?.data?.message || 'Upload failed. Please try again.');
+            toast.error(error.response?.data?.message || "Failed to upload prescription.");
         } finally {
-            setUploading(false);
+            setIsUploading(false);
         }
     };
 
     return (
-        <div className="prescription-upload">
-            <h3>Upload Prescription</h3>
-            <p>Upload an image or PDF of your prescription.</p>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="file-upload" className={`upload-label ${file ? 'file-selected' : ''}`}>
-                    {file ? <FaCheckCircle /> : <FaUpload />}
-                    <span>{file ? file.name : 'Choose File'}</span>
+        <div className="upload-card">
+            <h2>Have a Prescription?</h2>
+            <p>Upload a picture of your prescription and let our partner pharmacies handle the rest.</p>
+            <form onSubmit={handleSubmit} className="upload-form">
+                <label htmlFor="prescription-file" className="file-input-label">
+                    {selectedFile ? selectedFile.name : "Choose File (JPG, PNG, PDF)"}
                 </label>
-                <input id="file-upload" type="file" onChange={handleFileChange} accept="image/*,application/pdf" />
-                <button type="submit" className="upload-button" disabled={uploading}>
-                    {uploading ? 'Uploading...' : 'Submit Prescription'}
+                <input
+                    id="prescription-file"
+                    type="file"
+                    accept="image/jpeg,image/png,application/pdf"
+                    onChange={handleFileChange}
+                    className="file-input"
+                />
+                <button type="submit" className="upload-btn" disabled={isUploading}>
+                    <FaUpload /> {isUploading ? "Uploading..." : "Upload & Place Order"}
                 </button>
             </form>
         </div>
@@ -62,3 +63,4 @@ const PrescriptionUpload = () => {
 };
 
 export default PrescriptionUpload;
+

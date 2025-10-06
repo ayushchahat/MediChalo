@@ -1,24 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect, useState, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-import 'leaflet-routing-machine';
 
-// Fix default icon issues in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Custom Icons
+// =======================
+// 🧭 Custom Icons
+// =======================
 const pharmacyIcon = new L.Icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/2965/2965567.png',
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/11469/11469451.png',
   iconSize: [35, 35],
   iconAnchor: [17, 35],
 });
@@ -29,77 +18,88 @@ const customerIcon = new L.Icon({
   iconAnchor: [17, 35],
 });
 
-// Routing Component with safe removeControl
-const Routing = ({ from, to }) => {
+// =======================
+// 🗺️ FitBounds Component
+// =======================
+const FitBounds = ({ bounds }) => {
   const map = useMap();
-  const routingRef = useRef(null);
 
   useEffect(() => {
-    if (!from || !to || !map || !L.Routing) return;
-
-    // Remove previous routing safely
-    if (routingRef.current) {
-      try {
-        map.removeControl(routingRef.current);
-      } catch (err) {
-        console.warn('Safe removeControl skipped:', err);
-      }
+    if (bounds && map) {
+      map.fitBounds(bounds, { padding: [50, 50] });
     }
-
-    const routingControl = L.Routing.control({
-      waypoints: [L.latLng(from.lat, from.lng), L.latLng(to.lat, to.lng)],
-      lineOptions: { styles: [{ color: 'blue', weight: 4 }] },
-      addWaypoints: false,
-      routeWhileDragging: false,
-      show: false,
-      createMarker: () => null,
-    }).addTo(map);
-
-    routingRef.current = routingControl;
-
-    // Fit map bounds to show both markers
-    const bounds = L.latLngBounds([L.latLng(from.lat, from.lng), L.latLng(to.lat, to.lng)]);
-    map.fitBounds(bounds, { padding: [50, 50] });
-
-    return () => {
-      if (routingRef.current) {
-        try {
-          map.removeControl(routingRef.current);
-        } catch (err) {
-          console.warn('Safe removeControl skipped on cleanup:', err);
-        }
-      }
-    };
-  }, [from, to, map]);
+  }, [bounds, map]);
 
   return null;
 };
 
+// =======================
+// 🚗 OrderTrackerMap Component
+// =======================
 const OrderTrackerMap = ({ pharmacyLocation, customerLocation }) => {
-  // Convert strings to numbers safely
-  const safePharmacy =
-    pharmacyLocation && pharmacyLocation.latitude && pharmacyLocation.longitude
-      ? { lat: Number(pharmacyLocation.latitude), lng: Number(pharmacyLocation.longitude) }
-      : null;
+  const [route, setRoute] = useState([]);
 
-  const safeCustomer =
-    customerLocation && customerLocation.latitude && customerLocation.longitude
-      ? { lat: Number(customerLocation.latitude), lng: Number(customerLocation.longitude) }
-      : null;
+  // ✅ useMemo to stabilize values (fixes dependency warnings)
+  const safePharmacy = useMemo(() => {
+    if (pharmacyLocation?.latitude && pharmacyLocation?.longitude) {
+      return { lat: Number(pharmacyLocation.latitude), lng: Number(pharmacyLocation.longitude) };
+    }
+    return null;
+  }, [pharmacyLocation]);
 
-  // Default center fallback
-  const mapCenter =
-    safeCustomer || safePharmacy
-      ? [safeCustomer?.lat || safePharmacy.lat, safeCustomer?.lng || safePharmacy.lng]
-      : [8.5241, 76.9366]; // Thiruvananthapuram
+  const safeCustomer = useMemo(() => {
+    if (customerLocation?.latitude && customerLocation?.longitude) {
+      return { lat: Number(customerLocation.latitude), lng: Number(customerLocation.longitude) };
+    }
+    return null;
+  }, [customerLocation]);
+
+  const defaultCenter = [8.5241, 76.9366]; // Thiruvananthapuram fallback
+
+  // ✅ useMemo for stable bounds object
+  const bounds = useMemo(() => {
+    if (safePharmacy && safeCustomer) {
+      return L.latLngBounds([
+        [safePharmacy.lat, safePharmacy.lng],
+        [safeCustomer.lat, safeCustomer.lng],
+      ]);
+    }
+    return null;
+  }, [safePharmacy, safeCustomer]);
+
+  // ✅ Fetch route from OSRM safely
+  useEffect(() => {
+    if (safePharmacy && safeCustomer) {
+      const url = `https://router.project-osrm.org/route/v1/driving/${safePharmacy.lng},${safePharmacy.lat};${safeCustomer.lng},${safeCustomer.lat}?overview=full&geometries=geojson`;
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.routes?.length) {
+            const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            setRoute(coords);
+          } else {
+            console.warn('No route found between these points');
+            setRoute([]);
+          }
+        })
+        .catch((err) => {
+          console.error('Error fetching route:', err);
+          setRoute([]);
+        });
+    }
+  }, [safePharmacy, safeCustomer]);
 
   return (
     <MapContainer
-      center={mapCenter}
+      center={
+        bounds ? bounds.getCenter() : safeCustomer ? [safeCustomer.lat, safeCustomer.lng] : defaultCenter
+      }
       zoom={13}
       style={{ height: '100%', width: '100%', borderRadius: '12px' }}
       scrollWheelZoom={true}
     >
+      {/* Base map layer */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
@@ -119,8 +119,11 @@ const OrderTrackerMap = ({ pharmacyLocation, customerLocation }) => {
         </Marker>
       )}
 
-      {/* Routing */}
-      {safePharmacy && safeCustomer && <Routing from={safePharmacy} to={safeCustomer} />}
+      {/* Route Polyline */}
+      {route.length > 0 && <Polyline positions={route} color="blue" weight={4} />}
+
+      {/* Fit bounds dynamically */}
+      {bounds && <FitBounds bounds={bounds} />}
     </MapContainer>
   );
 };

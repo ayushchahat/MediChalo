@@ -61,10 +61,10 @@ const getAvailableMedicines = async (req, res) => {
   try {
     const medicines = await Medicine.find({ quantity: { $gt: 0 } }).populate({
       path: 'pharmacy',
-      select: 'pharmacyProfile', // only nested pharmacyProfile
+      select: 'pharmacyProfile',
       populate: {
         path: 'pharmacyProfile',
-        select: 'shopName', // specifically get shopName
+        select: 'shopName',
       },
     });
     res.json(medicines);
@@ -118,7 +118,7 @@ const deleteMedicine = async (req, res) => {
 };
 
 /**
- * @desc Search medicines by name (customers)
+ * @desc Search medicines by name (customers) with full pharmacy details
  * @route GET /api/inventory/search?keyword=...
  * @access Private (Customer)
  */
@@ -127,20 +127,22 @@ const searchMedicines = async (req, res) => {
     ? {
         name: {
           $regex: req.query.keyword,
-          $options: 'i',
+          $options: 'i', // case-insensitive search
         },
       }
     : {};
 
   try {
-    const medicines = await Medicine.find({ ...keyword, quantity: { $gt: 0 } }).populate({
-      path: 'pharmacy',
-      select: 'pharmacyProfile',
-      populate: {
-        path: 'pharmacyProfile',
-        select: 'shopName',
-      },
-    });
+    // Find medicines matching keyword with stock available
+    const medicines = await Medicine.find({ ...keyword, quantity: { $gt: 0 } })
+      .populate({
+        path: 'pharmacy',
+        populate: {
+          path: 'pharmacyProfile',
+          select: 'shopName location', // ✅ includes both shopName and location
+        },
+      });
+
     res.json(medicines);
   } catch (error) {
     console.error('SEARCH MEDICINES ERROR:', error);

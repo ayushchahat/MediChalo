@@ -4,7 +4,7 @@ import api from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import SocketContext from '../../context/SocketContext';
 import { useAuth } from '../../hooks/useAuth';
-import { FaToggleOn, FaToggleOff, FaHistory, FaDollarSign, FaBoxOpen } from 'react-icons/fa';
+import { FaToggleOn, FaToggleOff, FaHistory, FaRupeeSign, FaBoxOpen } from 'react-icons/fa';
 import OrderCard from './OrderCard';
 import './DeliveryDashboard.css';
 
@@ -119,7 +119,7 @@ const DeliveryDashboard = () => {
                     className={`dd-tab ${activeTab === 'earnings' ? 'active' : ''}`}
                     onClick={() => setActiveTab('earnings')}
                 >
-                    <FaDollarSign /> Earnings
+                    <FaRupeeSign /> Earnings
                 </Link>
             </nav>
 

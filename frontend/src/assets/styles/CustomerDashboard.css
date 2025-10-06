@@ -7,7 +7,7 @@
   color: var(--text-color);
 }
 
-/* ========== Header Section ========== */
+/* ========== Header ========== */
 .dashboard-header {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -17,8 +17,8 @@
 
 .dashboard-header h1 {
   font-size: 2.5rem;
-  color: var(--text-color);
   margin: 0 0 0.5rem 0;
+  color: var(--text-color);
 }
 
 .dashboard-header p {
@@ -26,12 +26,46 @@
   color: var(--text-color);
   opacity: 0.8;
   max-width: 600px;
-  margin: 0 auto 1.5rem auto;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
-/* ========== Search Section ========== */
-.dashboard-search {
+/* ========== Search + Upload ========== */
+.dashboard-top-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
   margin-bottom: 2rem;
+}
+
+.search-section,
+.prescription-section {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s;
+}
+
+.search-section:hover,
+.prescription-section:hover {
+  transform: translateY(-3px);
+}
+
+.search-section h2,
+.prescription-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+  color: var(--text-color);
+}
+
+.search-section p,
+.prescription-section p {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  opacity: 0.85;
+  margin-bottom: 1rem;
 }
 
 /* ========== Medicines Grid ========== */
@@ -42,27 +76,7 @@
   margin-bottom: 2.5rem;
 }
 
-/* ========== Extra Blocks Grid (PrescriptionUpload + ActiveOrders) ========== */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-.grid-item {
-  background-color: var(--card-bg-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.grid-item.wide {
-  grid-column: span 2; /* Make this item span both columns */
-}
-
-/* ========== My Orders Section ========== */
+/* ========== Orders Section ========== */
 .dashboard-orders {
   margin-top: 3rem;
 }
@@ -70,7 +84,6 @@
 .dashboard-orders h2 {
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
-  color: var(--text-color);
 }
 
 .orders-list-dashboard {
@@ -84,7 +97,7 @@
   border-radius: 12px;
   padding: 1rem 1.5rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -98,19 +111,22 @@
 .track-order-btn {
   margin-top: 0.8rem;
   display: inline-block;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  color: #fff; /* text color */
-  background-color: #007bff; /* primary button color */
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  color: #fff;
+  background-color: #007bff;
   border-radius: 8px;
   text-decoration: none;
-  transition: background-color 0.2s, color 0.2s;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  align-self: flex-start;
 }
 
 .track-order-btn:hover {
-  background-color: #0056b3; /* darker shade for hover */
-  color: #fff; /* ensure text stays white */
+  background-color: #0056b3;
 }
+
 
 /* ========== Loading Spinner ========== */
 .loading-spinner {
@@ -118,16 +134,12 @@
   padding: 3rem;
   font-size: 1.2rem;
   font-weight: 500;
+  min-height: 150px;
 }
 
 /* ========== Responsive ========== */
 @media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-  .grid-item.wide {
-    grid-column: span 1;
-  }
+  .dashboard-top-grid,
   .orders-list-dashboard {
     grid-template-columns: 1fr;
   }
@@ -141,7 +153,11 @@
 
 @media (max-width: 480px) {
   .track-order-btn {
+    display: block;
     width: 100%;
     text-align: center;
+    font-size: 1rem;
+    padding: 0.75rem;
+    align-self: center;
   }
 }

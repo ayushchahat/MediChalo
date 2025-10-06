@@ -1,84 +1,88 @@
 import React, { useState } from 'react';
 import api from '../../api/axiosConfig';
-import { FaSearch, FaPills } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { FaSearch } from 'react-icons/fa';
+import MedicineCard from './MedicineCard';
 import '../../assets/styles/MedicineSearch.css';
 
-const MedicineSearch = () => {
-    const [keyword, setKeyword] = useState('');
-    const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('Search for medicines available in nearby pharmacies.');
+const MedicineSearch = ({ customerLocation, onResults }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [message, setMessage] = useState('Search for medicines available in nearby pharmacies.');
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        if (!keyword.trim()) return;
+  const handleSearch = async (e) => {
+    e.preventDefault();
 
-        setLoading(true);
-        setResults([]);
-        setMessage('');
+    if (!searchTerm.trim()) {
+      toast.info('Please enter a medicine name to search.');
+      return;
+    }
 
-        try {
-            const { data } = await api.get(`/inventory/search?keyword=${keyword}`);
-            setResults(data);
-            if (data.length === 0) {
-                setMessage(`No medicine found for "${keyword}".`);
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setMessage(`No medicine found for "${keyword}".`);
-            } else {
-                setMessage('An error occurred while searching.');
-            }
-            console.error("Search error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    setLoading(true);
+    setHasSearched(true);
+    setResults([]);
+    setMessage('');
 
-    return (
-        <div className="medicine-search">
-            <h3>Find Medicines</h3>
-            <form onSubmit={handleSearch} className="search-form">
-                <div className="search-input-group">
-                    <FaSearch className="search-icon" />
-                    <input 
-                        type="text" 
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        placeholder="e.g., Paracetamol"
-                        className="search-input"
-                    />
-                </div>
-                <button type="submit" className="search-button" disabled={loading}>
-                    {loading ? 'Searching...' : 'Search'}
-                </button>
-            </form>
+    try {
+      const { data } = await api.get(`/inventory/search?keyword=${encodeURIComponent(searchTerm)}`);
+      setResults(data);
+      onResults && onResults(data);
 
-            <div className="search-results">
-                {loading && <p>Loading...</p>}
-                {!loading && results.length === 0 && <p className="search-message">{message}</p>}
-                {results.length > 0 && (
-                    <ul className="results-list">
-                        {results.map(med => (
-                            <li key={med._id} className="result-item">
-                                <FaPills className="pill-icon" />
-                                <div className="med-info">
-                                    <span className="med-name">{med.name}</span>
-                                    <span className="pharmacy-name">at {med.pharmacy?.name || 'Unknown Pharmacy'}</span>
-                                </div>
-                                <div className="med-details">
-                                    <span className="med-price">${med.price.toFixed(2)}</span>
-                                    <span className={`med-stock ${med.quantity > 10 ? 'in-stock' : 'low-stock'}`}>
-                                        {med.quantity > 0 ? 'In Stock' : 'Out of Stock'}
-                                    </span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
+      if (data.length === 0) {
+        setMessage(`No medicine found for "${searchTerm}".`);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setResults([]);
+      onResults && onResults([]);
+      setMessage('An error occurred while searching.');
+      toast.error('An error occurred while searching.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="medicine-search-container">
+      <form onSubmit={handleSearch} className="medicine-search-form">
+        <div className="search-input-wrapper">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search for Paracetamol..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
         </div>
-    );
+        <button type="submit" className="search-btn" disabled={loading}>
+          {loading ? 'Searching...' : 'Search'}
+        </button>
+      </form>
+
+      <div className="search-results-container">
+        {loading && <div className="loading-spinner small">Loading results...</div>}
+
+        {!loading && hasSearched && results.length === 0 && (
+          <p className="no-results-message">{message}</p>
+        )}
+
+        {!loading && results.length > 0 && (
+          <div className="search-results-grid">
+            {results.map((medicine) => (
+              <MedicineCard
+                key={medicine._id}
+                medicine={medicine}
+                customerLocation={customerLocation}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default MedicineSearch;
