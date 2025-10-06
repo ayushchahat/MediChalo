@@ -6,7 +6,7 @@ import './MedicineCard.css';
 
 const MedicineCard = ({ medicine, customerLocation }) => {
     const { addToCart } = useContext(CartContext);
-    const serverUrl = 'http://localhost:5000/';
+    const serverUrl = 'https://medichalo-backend.onrender.com/';
 
     // Extract pharmacy location safely
     const pharmacyLocation = medicine?.pharmacy?.pharmacyProfile?.location?.coordinates;
