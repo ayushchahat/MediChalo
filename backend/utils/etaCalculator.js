@@ -32,8 +32,8 @@ function deg2rad(deg) {
  * @returns {Date} The calculated ETA as a Date object
  */
 function calculateETA(startCoords, endCoords) {
-    const PREPARATION_TIME_MINUTES = 15; // Time for pickup and preparation
-    const AVERAGE_SPEED_KMPH = 20; // Average speed of a delivery vehicle in the city
+    const PREPARATION_TIME_MINUTES = 10; // Time for pickup and preparation
+    const AVERAGE_SPEED_KMPH = 60; // Average speed of a delivery vehicle in the city
 
     const distanceKm = getDistanceFromLatLonInKm(
         startCoords[1], // lat1

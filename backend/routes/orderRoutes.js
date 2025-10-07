@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {
     createPrescriptionOrder,
     createOrder,
@@ -91,7 +92,7 @@ router.put(
     assignDeliveryPartner
 );
 
-// NEW: Process refund for an order (Pharmacy-only access)
+// Process refund for an order (Pharmacy-only access)
 router.put(
     '/:id/refund',
     protect,

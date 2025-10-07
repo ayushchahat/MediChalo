@@ -34,7 +34,7 @@ function deg2rad(deg) {
  */
 export function calculateETAMinutes(startCoords, endCoords) {
     const PREPARATION_TIME_MINUTES = 10;
-    const AVERAGE_SPEED_KMPH = 25;
+    const AVERAGE_SPEED_KMPH = 60;
 
     const distanceKm = getDistanceFromLatLonInKm(startCoords, endCoords);
     if (distanceKm === 0) return "N/A";
