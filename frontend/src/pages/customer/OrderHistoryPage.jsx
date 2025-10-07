@@ -100,7 +100,7 @@ const OrderHistoryPage = () => {
                                     <div className="prescription-order-info">
                                         <p>This is a prescription-based order.</p>
                                         <a
-                                            href={`http://localhost:5000/${order.prescriptionImage.replace(/\\/g, '/')}`}
+                                            href={`https://medichalo-backend.onrender.com/${order.prescriptionImage.replace(/\\/g, '/')}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="view-prescription-btn"
