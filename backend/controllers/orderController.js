@@ -7,50 +7,67 @@ const { generateInvoice } = require('../services/pdfService');
 const { calculateETA } = require('../utils/etaCalculator');
 
 // ==========================
+// Helper function: Simulate Payment
+// ==========================
+const simulatePayment = (paymentMethod) => {
+  // Simulate a failed payment 10% of the time for online methods
+  if (paymentMethod === 'Card' || paymentMethod === 'UPI') {
+    return Math.random() > 0.1; // 90% success rate
+  }
+  return true; // COD always succeeds initially
+};
+
+// ==========================
 // Create a new order from prescription upload
-// @desc    Create a new order from a prescription
-// @route   POST /api/orders/prescription
-// @access  Private (Customer)
+// ==========================
 const createPrescriptionOrder = async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No prescription file uploaded.' });
+  if (!req.file) {
+    return res.status(400).json({ message: 'No prescription file uploaded.' });
+  }
+
+  try {
+    const pharmacyUser = await User.findOne({ role: 'Pharmacy' });
+    if (!pharmacyUser) {
+      return res.status(404).json({ message: 'No pharmacies are currently available.' });
     }
 
-    try {
-        const pharmacyUser = await User.findOne({ role: 'Pharmacy' });
-        if (!pharmacyUser) {
-            return res.status(404).json({ message: 'No pharmacies are currently available.' });
-        }
+    const order = new Order({
+      customer: req.user._id,
+      pharmacy: pharmacyUser._id,
+      status: 'Pending',
+      prescriptionImage: req.file.path,
+      paymentMethod: 'COD',
+      paymentStatus: 'Pending',
+    });
 
-        const order = new Order({
-            customer: req.user._id,
-            pharmacy: pharmacyUser._id,
-            status: 'Pending',
-            prescriptionImage: req.file.path,
-        });
+    const createdOrder = await order.save();
 
-        const createdOrder = await order.save();
+    const io = req.app.get('io');
+    io.to(pharmacyUser._id.toString()).emit('new_order', createdOrder);
 
-        const io = req.app.get('io');
-        io.to(pharmacyUser._id.toString()).emit('new_order', createdOrder);
-
-        res.status(201).json(createdOrder);
-    } catch (error) {
-        console.error("PRESCRIPTION ORDER ERROR:", error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
-    }
+    res.status(201).json(createdOrder);
+  } catch (error) {
+    console.error("PRESCRIPTION ORDER ERROR:", error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
 };
 
 // ==========================
 // Create a new order from frontend form
 // ==========================
 const createOrder = async (req, res) => {
-  const { orderItems, pharmacyId, deliveryAddress, totalAmount } = req.body;
+  const { orderItems, pharmacyId, deliveryAddress, totalAmount, paymentMethod } = req.body;
+
   if (!orderItems || orderItems.length === 0) {
     return res.status(400).json({ message: 'No order items provided' });
   }
+  if (!paymentMethod) {
+    return res.status(400).json({ message: 'Payment method is required.' });
+  }
 
   try {
+    const isPaymentSuccessful = simulatePayment(paymentMethod);
+
     const order = new Order({
       customer: req.user._id,
       pharmacy: pharmacyId,
@@ -58,6 +75,9 @@ const createOrder = async (req, res) => {
       deliveryAddress: JSON.parse(deliveryAddress),
       totalAmount,
       prescriptionImage: req.file ? req.file.path : null,
+      paymentMethod,
+      status: isPaymentSuccessful ? 'Approved' : 'Payment Failed',
+      paymentStatus: isPaymentSuccessful ? (paymentMethod === 'COD' ? 'Pending' : 'Completed') : 'Failed',
     });
 
     const createdOrder = await order.save();
@@ -65,7 +85,12 @@ const createOrder = async (req, res) => {
     const io = req.app.get('io');
     io.to(pharmacyId.toString()).emit('new_order', createdOrder);
 
-    res.status(201).json(createdOrder);
+    res.status(isPaymentSuccessful ? 201 : 402).json({
+      message: isPaymentSuccessful
+        ? 'Order placed successfully!'
+        : 'Payment failed. Please try again.',
+      order: createdOrder,
+    });
   } catch (error) {
     console.error("CREATE ORDER ERROR:", error);
     res.status(500).json({ message: 'Server Error' });
@@ -76,12 +101,19 @@ const createOrder = async (req, res) => {
 // Create order from shopping cart
 // ==========================
 const createOrderFromCart = async (req, res) => {
-  const { cartItems, deliveryAddress } = req.body;
+  const { cartItems, deliveryAddress, paymentMethod } = req.body;
+
   if (!cartItems || cartItems.length === 0) {
     return res.status(400).json({ message: 'Cart is empty' });
   }
+  if (!paymentMethod) {
+    return res.status(400).json({ message: 'Payment method is required.' });
+  }
 
   try {
+    const isPaymentSuccessful = simulatePayment(paymentMethod);
+
+    // Group items by pharmacy to create separate orders
     const pharmacyGroups = cartItems.reduce((acc, item) => {
       const pharmacyId = item.pharmacy._id.toString();
       if (!acc[pharmacyId]) acc[pharmacyId] = [];
@@ -90,7 +122,6 @@ const createOrderFromCart = async (req, res) => {
     }, {});
 
     const createdOrders = [];
-
     for (const pharmacyId in pharmacyGroups) {
       const items = pharmacyGroups[pharmacyId];
       const medicineIds = items.map(item => item._id);
@@ -103,12 +134,7 @@ const createOrderFromCart = async (req, res) => {
           throw new Error(`Insufficient stock for ${item.name}`);
         }
         totalAmount += medInDb.price * item.quantity;
-        return {
-          medicineId: medInDb._id,
-          name: medInDb.name,
-          quantity: item.quantity,
-          price: medInDb.price,
-        };
+        return { medicineId: medInDb._id, name: medInDb.name, quantity: item.quantity, price: medInDb.price };
       });
 
       const order = new Order({
@@ -117,19 +143,29 @@ const createOrderFromCart = async (req, res) => {
         medicines: orderMedicines,
         deliveryAddress,
         totalAmount,
-        status: 'Approved',
+        paymentMethod,
+        status: isPaymentSuccessful ? 'Approved' : 'Payment Failed',
+        paymentStatus: isPaymentSuccessful ? (paymentMethod === 'COD' ? 'Pending' : 'Completed') : 'Failed',
       });
 
       const createdOrder = await order.save();
 
-      for (const item of orderMedicines) {
-        await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
+      // Deduct stock only if payment was successful
+      if (isPaymentSuccessful) {
+        for (const item of orderMedicines) {
+          await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
+        }
       }
 
       createdOrders.push(createdOrder);
     }
 
+    if (!isPaymentSuccessful) {
+      return res.status(402).json({ message: "Payment failed. Please try again.", orders: createdOrders });
+    }
+
     res.status(201).json({ message: "Order(s) placed successfully!", orders: createdOrders });
+
   } catch (error) {
     console.error("CART ORDER ERROR:", error);
     res.status(500).json({ message: error.message || 'Server Error' });
@@ -183,7 +219,7 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    // Pharmacy status updates
+    // Pharmacy updates
     const pharmacyStatuses = ['Approved', 'Rejected', 'Ready for Delivery', 'Cancelled'];
     if (req.user.role === 'Pharmacy' && pharmacyStatuses.includes(status)) {
       if (order.pharmacy.toString() !== req.user._id.toString()) {
@@ -224,7 +260,7 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
-    // Delivery Partner status updates
+    // Delivery Partner updates
     const partnerStatuses = ['Accepted by Partner', 'Out for Delivery'];
     if (req.user.role === 'DeliveryPartner' && partnerStatuses.includes(status)) {
       if (order.deliveryPartner.toString() !== req.user._id.toString()) {
@@ -309,7 +345,39 @@ const confirmDelivery = async (req, res) => {
 };
 
 // ==========================
-// Download PDF invoice
+// Process Refund
+// ==========================
+const processRefund = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found.' });
+    }
+
+    if (order.paymentStatus !== 'Completed') {
+      return res.status(400).json({ message: 'Only completed orders can be refunded.' });
+    }
+
+    console.log(`Processing refund for order ${order._id}...`);
+
+    order.status = 'Cancelled';
+    order.paymentStatus = 'Refunded';
+
+    // Add stock back
+    for (const item of order.medicines) {
+      await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: item.quantity } });
+    }
+
+    await order.save();
+    res.json({ message: 'Order refunded and stock restored successfully.' });
+  } catch (error) {
+    console.error("REFUND ERROR:", error);
+    res.status(500).json({ message: 'Server error while processing refund.' });
+  }
+};
+
+// ==========================
+// Download PDF Invoice
 // ==========================
 const downloadInvoice = async (req, res) => {
   try {
@@ -326,7 +394,7 @@ const downloadInvoice = async (req, res) => {
 };
 
 // ==========================
-// Get real-time order tracking details
+// Get Real-time Tracking Details
 // ==========================
 const getOrderTrackingDetails = async (req, res) => {
   try {
@@ -335,7 +403,7 @@ const getOrderTrackingDetails = async (req, res) => {
       .populate({
         path: 'pharmacy',
         select: 'name pharmacyProfile',
-        populate: { path: 'pharmacyProfile', select: 'shopName location address' }
+        populate: { path: 'pharmacyProfile', select: 'shopName location address' },
       })
       .populate('deliveryPartner', 'name location');
 
@@ -352,7 +420,7 @@ const getOrderTrackingDetails = async (req, res) => {
       eta: order.eta || 'Calculating...',
       pharmacyLocation: order.pharmacy?.pharmacyProfile?.location || null,
       deliveryPartnerLocation: order.deliveryPartner?.location || null,
-      customerLocation: order.customer?.location || null
+      customerLocation: order.customer?.location || null,
     };
 
     res.json(trackingData);
@@ -372,5 +440,6 @@ module.exports = {
   assignDeliveryPartner,
   confirmDelivery,
   downloadInvoice,
-  getOrderTrackingDetails
+  getOrderTrackingDetails,
+  processRefund,
 };

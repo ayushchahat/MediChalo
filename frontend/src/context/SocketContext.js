@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const newSocket = io('https://medichalo-backend.onrender.com'); // Your backend URL
+      const newSocket = io('http://localhost:5000'); // Your backend URL
       newSocket.emit('join_room', user.id);
 
       newSocket.on('new_order', (order) => {

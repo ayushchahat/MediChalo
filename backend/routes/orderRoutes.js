@@ -10,8 +10,10 @@ const {
     assignDeliveryPartner,
     confirmDelivery,
     downloadInvoice,
-    getOrderTrackingDetails
+    getOrderTrackingDetails,
+    processRefund // Added new controller for refund
 } = require('../controllers/orderController');
+
 const { protect, hasRole } = require('../middleware/authMiddleware');
 const { uploadPrescription } = require('../middleware/uploadMiddleware');
 
@@ -20,41 +22,101 @@ const { uploadPrescription } = require('../middleware/uploadMiddleware');
 // ==========================
 
 // Create a new order from a prescription upload
-router.post('/prescription', protect, hasRole(['Customer']), uploadPrescription, createPrescriptionOrder);
+router.post(
+    '/prescription',
+    protect,
+    hasRole(['Customer']),
+    uploadPrescription,
+    createPrescriptionOrder
+);
 
 // Create a new order from the customer frontend form
-router.post('/', protect, hasRole(['Customer']), uploadPrescription, createOrder);
+router.post(
+    '/',
+    protect,
+    hasRole(['Customer']),
+    uploadPrescription,
+    createOrder
+);
 
 // Create a new order from the customer's shopping cart
-router.post('/cart', protect, hasRole(['Customer']), createOrderFromCart);
+router.post(
+    '/cart',
+    protect,
+    hasRole(['Customer']),
+    createOrderFromCart
+);
 
 // Get all orders for the currently logged-in user (Customer or Delivery Partner)
-router.get('/my-orders', protect, hasRole(['Customer', 'DeliveryPartner']), getMyOrders);
+router.get(
+    '/my-orders',
+    protect,
+    hasRole(['Customer', 'DeliveryPartner']),
+    getMyOrders
+);
 
 // Get real-time tracking details of an order (Customer or Delivery Partner)
-router.get('/:id/track', protect, hasRole(['Customer', 'DeliveryPartner']), getOrderTrackingDetails);
+router.get(
+    '/:id/track',
+    protect,
+    hasRole(['Customer', 'DeliveryPartner']),
+    getOrderTrackingDetails
+);
 
 // Download a PDF invoice for a specific order
-router.get('/:id/invoice', protect, hasRole(['Customer', 'Pharmacy']), downloadInvoice);
+router.get(
+    '/:id/invoice',
+    protect,
+    hasRole(['Customer', 'Pharmacy']),
+    downloadInvoice
+);
 
 // ==========================
 // Pharmacy Routes
 // ==========================
 
 // Get all incoming orders for the currently logged-in pharmacy
-router.get('/pharmacy-orders', protect, hasRole(['Pharmacy']), getPharmacyOrders);
+router.get(
+    '/pharmacy-orders',
+    protect,
+    hasRole(['Pharmacy']),
+    getPharmacyOrders
+);
 
 // Assign a delivery partner to a ready order
-router.put('/:id/assign', protect, hasRole(['Pharmacy']), assignDeliveryPartner);
+router.put(
+    '/:id/assign',
+    protect,
+    hasRole(['Pharmacy']),
+    assignDeliveryPartner
+);
+
+// NEW: Process refund for an order (Pharmacy-only access)
+router.put(
+    '/:id/refund',
+    protect,
+    hasRole(['Pharmacy']),
+    processRefund
+);
 
 // ==========================
 // Status & Delivery Routes
 // ==========================
 
 // Update the status of an order (Pharmacy or Delivery Partner)
-router.put('/:id/status', protect, hasRole(['Pharmacy', 'DeliveryPartner']), updateOrderStatus);
+router.put(
+    '/:id/status',
+    protect,
+    hasRole(['Pharmacy', 'DeliveryPartner']),
+    updateOrderStatus
+);
 
 // Confirm a successful delivery using an OTP (Delivery Partner)
-router.put('/:id/confirm-delivery', protect, hasRole(['DeliveryPartner']), confirmDelivery);
+router.put(
+    '/:id/confirm-delivery',
+    protect,
+    hasRole(['DeliveryPartner']),
+    confirmDelivery
+);
 
 module.exports = router;

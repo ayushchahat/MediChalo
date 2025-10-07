@@ -1,6 +1,6 @@
-/* OrderHistoryPage.css */
-
+/* ========================== */
 /* General Container */
+/* ========================== */
 .order-history-container {
   max-width: 1200px;
   margin: 2rem auto;
@@ -16,7 +16,9 @@
   color: var(--primary-color, #007bff);
 }
 
+/* ========================== */
 /* Filter Controls */
+/* ========================== */
 .filter-controls {
   display: flex;
   align-items: center;
@@ -43,14 +45,18 @@
   border-color: var(--primary-color, #007bff);
 }
 
+/* ========================== */
 /* Orders List */
+/* ========================== */
 .orders-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1.5rem;
 }
 
+/* ========================== */
 /* Order Card */
+/* ========================== */
 .order-card {
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -65,7 +71,9 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
+/* ========================== */
 /* Card Header */
+/* ========================== */
 .order-card-header {
   display: flex;
   justify-content: space-between;
@@ -84,6 +92,28 @@
   color: #555;
 }
 
+/* Header Tags (Payment + Status) */
+.order-header-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Payment Method Tag */
+.payment-method-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.dark .payment-method-tag {
+  background-color: #4b5563;
+  color: #f9fafb;
+}
+
 /* Status Tag */
 .status-tag {
   font-size: 0.85rem;
@@ -94,14 +124,25 @@
   text-transform: capitalize;
 }
 
+/* Status Colors */
 .status-tag.pending { background-color: #f0ad4e; }
 .status-tag.approved { background-color: #5cb85c; }
-.status-tag['out-for-delivery'], .status-tag.out-for-delivery { background-color: #5bc0de; }
+.status-tag.out-for-delivery { background-color: #5bc0de; }
 .status-tag.delivered { background-color: #337ab7; }
 .status-tag.cancelled { background-color: #d9534f; }
 .status-tag.rejected { background-color: #d9534f; }
 
+/* Dark mode status colors */
+.dark .status-tag.pending { background-color: #f59e0b; }
+.dark .status-tag.approved { background-color: #10b981; }
+.dark .status-tag.out-for-delivery { background-color: #3b82f6; }
+.dark .status-tag.delivered { background-color: #2563eb; }
+.dark .status-tag.cancelled,
+.dark .status-tag.rejected { background-color: #ef4444; }
+
+/* ========================== */
 /* Card Body */
+/* ========================== */
 .order-card-body h4 {
   margin-bottom: 0.5rem;
   font-size: 1rem;
@@ -123,7 +164,30 @@
   color: #555;
 }
 
+.prescription-order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.view-prescription-btn {
+  padding: 0.3rem 0.6rem;
+  background-color: var(--primary-color, #007bff);
+  color: #fff;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  width: fit-content;
+  transition: background-color 0.2s;
+}
+
+.view-prescription-btn:hover {
+  background-color: #0056b3;
+}
+
+/* ========================== */
 /* Card Footer */
+/* ========================== */
 .order-card-footer {
   display: flex;
   justify-content: space-between;
@@ -163,7 +227,9 @@
   transform: translateY(-1px);
 }
 
+/* ========================== */
 /* Loading & Empty State */
+/* ========================== */
 .order-history-container p {
   text-align: center;
   margin-top: 2rem;
@@ -179,12 +245,20 @@
   margin-top: 0.3rem;
 }
 
+/* ========================== */
 /* Responsive Adjustments */
+/* ========================== */
 @media (max-width: 768px) {
   .filter-controls {
     justify-content: center;
   }
-  
+
+  .order-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
   .order-card-footer {
     flex-direction: column;
     align-items: flex-start;
