@@ -12,7 +12,8 @@ const {
     confirmDelivery,
     downloadInvoice,
     getOrderTrackingDetails,
-    processRefund // Added new controller for refund
+    processRefund, // Added new controller for refund
+    updatePrescriptionOrder // ✅ Added new controller for updating prescription order
 } = require('../controllers/orderController');
 
 const { protect, hasRole } = require('../middleware/authMiddleware');
@@ -82,6 +83,14 @@ router.get(
     protect,
     hasRole(['Pharmacy']),
     getPharmacyOrders
+);
+
+// ✅ NEW: Route for updating a prescription order with priced items
+router.put(
+    '/:id/update-prescription',
+    protect,
+    hasRole(['Pharmacy']),
+    updatePrescriptionOrder
 );
 
 // Assign a delivery partner to a ready order

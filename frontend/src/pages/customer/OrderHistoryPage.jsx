@@ -31,6 +31,7 @@ const OrderHistoryPage = () => {
     // Download Invoice
     const handleDownloadInvoice = async (orderId) => {
         try {
+            toast.info("Generating your invoice...");
             const response = await api.get(`/orders/${orderId}/invoice`, {
                 responseType: 'blob',
             });
@@ -46,11 +47,12 @@ const OrderHistoryPage = () => {
     // Filter Orders
     const filteredOrders = orders.filter(order => filter === 'All' || order.status === filter);
 
-    // Format Date/Time
+    // Format Helpers
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString();
-    const formatTime = (dateString) => new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (dateString) =>
+        new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    if (loading) return <div className="loading-text">Loading Your Orders...</div>;
+    if (loading) return <div className="loading-spinner">Loading Your Orders...</div>;
 
     return (
         <div className="order-history-container">
@@ -70,9 +72,14 @@ const OrderHistoryPage = () => {
                 </select>
             </div>
 
-            {/* Empty State */}
+            {/* No Orders Message */}
             {!loading && filteredOrders.length === 0 && (
-                <p className="empty-text">You have no orders matching this filter.</p>
+                <div className="no-orders-card">
+                    <p>You have not placed any orders yet.</p>
+                    <Link to="/customer/dashboard" className="shop-now-btn">
+                        Start Shopping
+                    </Link>
+                </div>
             )}
 
             {/* Orders List */}
@@ -85,12 +92,14 @@ const OrderHistoryPage = () => {
                             {/* Header */}
                             <div className="order-card-header">
                                 <div>
-                                    <h3>Order ID: #{order._id.substring(0, 8)}...</h3>
+                                    <h3>Order ID: #{order._id.substring(18).toUpperCase()}</h3>
                                     <span>Placed on: {formatDate(order.createdAt)}</span>
                                 </div>
                                 <div className="order-header-tags">
                                     <span className="payment-method-tag">{order.paymentMethod || 'COD'}</span>
-                                    <span className={`order-status-tag status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>{order.status}</span>
+                                    <span className={`order-status-tag status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                        {order.status}
+                                    </span>
                                 </div>
                             </div>
 
@@ -98,7 +107,7 @@ const OrderHistoryPage = () => {
                             <div className="order-card-body">
                                 {order.prescriptionImage ? (
                                     <div className="prescription-order-info">
-                                        <p>This is a prescription-based order.</p>
+                                        <p>This is a prescription-based order. Items are being reviewed by the pharmacy.</p>
                                         <a
                                             href={`https://medichalo-backend.onrender.com/${order.prescriptionImage.replace(/\\/g, '/')}`}
                                             target="_blank"
@@ -112,7 +121,7 @@ const OrderHistoryPage = () => {
                                     <ul className="medicines-list-history">
                                         {order.medicines.map(med => (
                                             <li key={med._id || med.medicineId}>
-                                                {med.name} (x{med.quantity}) - <em>{med.status}</em>
+                                                {med.name} (x{med.quantity})
                                             </li>
                                         ))}
                                     </ul>
@@ -128,15 +137,11 @@ const OrderHistoryPage = () => {
                                     {order.eta && ['Accepted by Partner', 'Out for Delivery'].includes(order.status) && (
                                         <span className="order-eta">ETA: {formatTime(order.eta)}</span>
                                     )}
-
-                                    {/* Track Order Button */}
                                     {['Accepted by Partner', 'Out for Delivery'].includes(order.status) && (
                                         <Link to={`/track-order/${order._id}`} className="track-order-btn">
                                             <FaMapMarkerAlt /> Track Order
                                         </Link>
                                     )}
-
-                                    {/* Invoice Download Button */}
                                     <button
                                         onClick={() => handleDownloadInvoice(order._id)}
                                         className="download-invoice-btn"

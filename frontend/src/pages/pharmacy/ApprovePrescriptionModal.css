@@ -1,0 +1,219 @@
+/* ================================
+   Modal Overlay & Container
+================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: var(--card-bg-color, #fff);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   Close Button
+================================ */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  color: #222;
+}
+
+/* ================================
+   Modal Header & Text
+================================ */
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: var(--text-color, #333);
+  margin-bottom: 0.5rem;
+}
+
+.modal-content p {
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.modal-content a {
+  color: var(--primary-color, #007bff);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.modal-content a:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   Approve Form
+================================ */
+.approve-form {
+  margin-top: 1.5rem;
+}
+
+.approve-form h4 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-color, #333);
+  border-bottom: 1px solid var(--border-color, #ddd);
+  padding-bottom: 0.5rem;
+}
+
+/* Medicine Input Rows */
+.medicine-item-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.medicine-item-row input {
+  padding: 0.6rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+/* Add / Remove Buttons */
+.add-med-btn,
+.remove-med-btn {
+  background: none;
+  border: 1px solid var(--border-color, #ccc);
+  cursor: pointer;
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-med-btn:hover,
+.remove-med-btn:hover {
+  background-color: var(--hover-bg, #f1f1f1);
+}
+
+.add-med-btn {
+  margin-top: 0.5rem;
+  width: fit-content;
+  color: var(--primary-color, #007bff);
+  border-color: var(--primary-color, #007bff);
+}
+
+.add-med-btn svg {
+  margin-right: 5px;
+}
+
+.remove-med-btn {
+  color: var(--danger-color, #dc3545);
+  border-color: var(--danger-color, #dc3545);
+}
+
+.remove-med-btn svg {
+  pointer-events: none;
+}
+
+/* ================================
+   Footer Section
+================================ */
+.approve-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border-color, #ddd);
+  padding-top: 1rem;
+}
+
+/* Total Display */
+.total-display {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color, #333);
+}
+
+/* Confirm Button */
+.modal-btn.confirm-approve {
+  background-color: var(--success-color, #28a745);
+  color: #fff;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-btn.confirm-approve:hover {
+  background-color: #218838;
+}
+
+.modal-btn.confirm-approve:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================================
+   Responsive Design
+================================ */
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .medicine-item-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .add-med-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .approve-form-footer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}

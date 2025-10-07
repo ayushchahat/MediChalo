@@ -6,10 +6,12 @@ const orderSchema = new mongoose.Schema(
     pharmacy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     deliveryPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
+    // Medicines within an order
     medicines: [
       {
-        medicineId: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine', required: true },
-        name: String,
+        // Optional: allows custom meds from prescriptions not in pharmacy DB
+        medicineId: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine' },
+        name: { type: String, required: true },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         status: {
@@ -22,10 +24,11 @@ const orderSchema = new mongoose.Schema(
 
     prescriptionImage: { type: String },
 
-    // Allows prescription-only orders
+    // Billing details
     totalAmount: { type: Number, required: true, default: 0 },
     deliveryFee: { type: Number, default: 5 },
 
+    // Order lifecycle status
     status: {
       type: String,
       enum: [
@@ -37,11 +40,12 @@ const orderSchema = new mongoose.Schema(
         'Out for Delivery',
         'Delivered',
         'Cancelled',
-        'Payment Failed', // Added new status
+        'Payment Failed',
       ],
       default: 'Pending',
     },
 
+    // Address details
     deliveryAddress: {
       street: String,
       city: String,
@@ -49,14 +53,12 @@ const orderSchema = new mongoose.Schema(
       zipCode: String,
     },
 
-    // NEW: Payment method field
+    // Payment details
     paymentMethod: {
       type: String,
       required: true,
       enum: ['Card', 'UPI', 'COD'], // Cash on Delivery
     },
-
-    // Enhanced payment status
     paymentStatus: {
       type: String,
       enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
@@ -69,6 +71,12 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Optional: Automatically calculate total before saving
+orderSchema.pre('save', function (next) {
+  this.totalAmount = this.medicines.reduce((sum, item) => sum + item.price * item.quantity, 0) + (this.deliveryFee || 0);
+  next();
+});
 
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;

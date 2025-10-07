@@ -48,6 +48,41 @@ const createPrescriptionOrder = async (req, res) => {
 };
 
 // ==========================
+// Update prescription order (approve with medicines & total)
+// ==========================
+const updatePrescriptionOrder = async (req, res) => {
+  const { medicines } = req.body; // Expects array of { name, quantity, price }
+
+  if (!medicines || medicines.length === 0) {
+    return res.status(400).json({ message: 'At least one medicine is required.' });
+  }
+
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found.' });
+    if (order.pharmacy.toString() !== req.user.id.toString()) return res.status(403).json({ message: 'Not authorized for this order.' });
+    if (order.status !== 'Pending') return res.status(400).json({ message: 'This order is no longer pending and cannot be updated.' });
+
+    const totalAmount = medicines.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+
+    order.medicines = medicines;
+    order.totalAmount = totalAmount;
+    order.status = 'Approved';
+
+    const updatedOrder = await order.save();
+
+    // Notify the customer
+    const io = req.app.get('io');
+    io.to(order.customer.toString()).emit('order_update', updatedOrder);
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error("UPDATE PRESCRIPTION ERROR:", error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// ==========================
 // Create a new order from frontend form
 // ==========================
 const createOrder = async (req, res) => {
@@ -337,7 +372,6 @@ const downloadInvoice = async (req, res) => {
     const order = await Order.findById(req.params.id).populate('customer', 'name address');
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    // Security check
     if (order.customer._id.toString() !== req.user.id.toString()) {
       return res.status(403).json({ message: 'Not authorized to access this invoice' });
     }
@@ -388,6 +422,7 @@ const getOrderTrackingDetails = async (req, res) => {
 
 module.exports = {
   createPrescriptionOrder,
+  updatePrescriptionOrder,
   createOrder,
   createOrderFromCart,
   getMyOrders,
