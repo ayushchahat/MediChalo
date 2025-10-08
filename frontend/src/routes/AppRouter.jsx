@@ -22,6 +22,7 @@ import TrackOrderPage from '../pages/customer/TrackOrderPage'; // Track Order pa
 // Pharmacy Pages
 // ======================
 import PharmacyDashboard from '../pages/pharmacy/PharmacyDashboard';
+import PharmacyProfilePage from '../pages/pharmacy/PharmacyProfilePage'; // NEW: Profile page
 import OnboardingPage from '../pages/pharmacy/OnboardingPage';
 import AddMedicinePage from '../pages/pharmacy/AddMedicinePage';
 import InventoryPage from '../pages/pharmacy/InventoryPage';
@@ -34,7 +35,7 @@ import DeliveryDashboard from '../pages/delivery/DeliveryDashboard';
 import DeliveryOnboardingPage from '../pages/delivery/OnboardingPage';
 import DeliveryHistoryPage from '../pages/delivery/HistoryPage';
 import DeliveryEarningsPage from '../pages/delivery/EarningsPage';
-import DeliveryTrackOrderPage from '../pages/delivery/DeliveryTrackOrderPage'; // New tracking page
+import DeliveryTrackOrderPage from '../pages/delivery/DeliveryTrackOrderPage'; // Tracking page
 
 const AppRouter = () => {
   return (
@@ -62,6 +63,7 @@ const AppRouter = () => {
 
             {/* Pharmacy Routes */}
             <Route path="/pharmacy/dashboard" element={<PharmacyDashboard />} />
+            <Route path="/pharmacy/profile" element={<PharmacyProfilePage />} /> {/* NEW */}
             <Route path="/pharmacy/onboarding" element={<OnboardingPage />} />
             <Route path="/pharmacy/add-medicine" element={<AddMedicinePage />} />
             <Route path="/pharmacy/inventory" element={<InventoryPage />} />

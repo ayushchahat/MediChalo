@@ -56,7 +56,7 @@ const ApprovePrescriptionModal = ({ isOpen, onClose, order }) => {
         <Modal isOpen={isOpen} onClose={() => onClose(false)}>
             <h2>Approve Prescription Order</h2>
             <p>Order ID: {order?._id}</p>
-            <a href={`https://medichalo-backend.onrender.com/${order?.prescriptionImage}`} target="_blank" rel="noopener noreferrer">View Prescription</a>
+            <a href={`http://localhost:5000/${order?.prescriptionImage}`} target="_blank" rel="noopener noreferrer">View Prescription</a>
 
             <form onSubmit={handleSubmit} className="approve-form">
                 <h4>Add Medicines</h4>

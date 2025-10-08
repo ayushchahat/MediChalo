@@ -7,24 +7,26 @@ const { generateInvoice } = require('../services/pdfService');
 const { calculateETA } = require('../utils/etaCalculator');
 
 // ==========================
-// Helper function: Simulate Payment
+// Helper: Simulate Payment
 // ==========================
 const simulatePayment = (paymentMethod) => {
   if (paymentMethod === 'Card' || paymentMethod === 'UPI') {
-    return Math.random() > 0.1; // 90% success rate
+    return Math.random() > 0.1; // 90% success
   }
-  return true; // COD always succeeds initially
+  return true; // COD always succeeds
 };
 
 // ==========================
-// Create a new order from prescription upload
+// Create Prescription Order
 // ==========================
 const createPrescriptionOrder = async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: 'No prescription file uploaded.' });
+  if (!req.file)
+    return res.status(400).json({ message: 'No prescription file uploaded.' });
 
   try {
     const pharmacyUser = await User.findOne({ role: 'Pharmacy' });
-    if (!pharmacyUser) return res.status(404).json({ message: 'No pharmacies are currently available.' });
+    if (!pharmacyUser)
+      return res.status(404).json({ message: 'No pharmacies available.' });
 
     const order = new Order({
       customer: req.user._id,
@@ -36,7 +38,6 @@ const createPrescriptionOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
-
     const io = req.app.get('io');
     io.to(pharmacyUser._id.toString()).emit('new_order', createdOrder);
 
@@ -48,30 +49,37 @@ const createPrescriptionOrder = async (req, res) => {
 };
 
 // ==========================
-// Update prescription order (approve with medicines & total)
+// Update Prescription Order
 // ==========================
 const updatePrescriptionOrder = async (req, res) => {
-  const { medicines } = req.body; // Expects array of { name, quantity, price }
+  const { medicines } = req.body;
 
-  if (!medicines || medicines.length === 0) {
+  if (!medicines || medicines.length === 0)
     return res.status(400).json({ message: 'At least one medicine is required.' });
-  }
 
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found.' });
-    if (order.pharmacy.toString() !== req.user.id.toString()) return res.status(403).json({ message: 'Not authorized for this order.' });
-    if (order.status !== 'Pending') return res.status(400).json({ message: 'This order is no longer pending and cannot be updated.' });
+    if (order.pharmacy.toString() !== req.user.id.toString())
+      return res.status(403).json({ message: 'Not authorized for this order.' });
+    if (order.status !== 'Pending')
+      return res.status(400).json({ message: 'This order is no longer pending.' });
 
-    const totalAmount = medicines.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+    const totalAmount = medicines.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
+      0
+    );
 
     order.medicines = medicines;
     order.totalAmount = totalAmount;
     order.status = 'Approved';
 
-    const updatedOrder = await order.save();
+    // Decrease stock
+    for (const item of medicines) {
+      await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
+    }
 
-    // Notify the customer
+    const updatedOrder = await order.save();
     const io = req.app.get('io');
     io.to(order.customer.toString()).emit('order_update', updatedOrder);
 
@@ -83,12 +91,14 @@ const updatePrescriptionOrder = async (req, res) => {
 };
 
 // ==========================
-// Create a new order from frontend form
+// Create Regular Order
 // ==========================
 const createOrder = async (req, res) => {
   const { orderItems, pharmacyId, deliveryAddress, totalAmount, paymentMethod } = req.body;
-  if (!orderItems || orderItems.length === 0) return res.status(400).json({ message: 'No order items provided' });
-  if (!paymentMethod) return res.status(400).json({ message: 'Payment method is required.' });
+  if (!orderItems || orderItems.length === 0)
+    return res.status(400).json({ message: 'No order items provided' });
+  if (!paymentMethod)
+    return res.status(400).json({ message: 'Payment method is required.' });
 
   try {
     const isPaymentSuccessful = simulatePayment(paymentMethod);
@@ -102,16 +112,19 @@ const createOrder = async (req, res) => {
       prescriptionImage: req.file ? req.file.path : null,
       paymentMethod,
       status: isPaymentSuccessful ? 'Approved' : 'Payment Failed',
-      paymentStatus: isPaymentSuccessful ? (paymentMethod === 'COD' ? 'Pending' : 'Completed') : 'Failed',
+      paymentStatus: isPaymentSuccessful
+        ? (paymentMethod === 'COD' ? 'Pending' : 'Completed')
+        : 'Failed',
     });
 
     const createdOrder = await order.save();
-
     const io = req.app.get('io');
     io.to(pharmacyId.toString()).emit('new_order', createdOrder);
 
     res.status(isPaymentSuccessful ? 201 : 402).json({
-      message: isPaymentSuccessful ? 'Order placed successfully!' : 'Payment failed. Please try again.',
+      message: isPaymentSuccessful
+        ? 'Order placed successfully!'
+        : 'Payment failed. Please try again.',
       order: createdOrder,
     });
   } catch (error) {
@@ -121,12 +134,14 @@ const createOrder = async (req, res) => {
 };
 
 // ==========================
-// Create order from shopping cart
+// Create Order from Cart
 // ==========================
 const createOrderFromCart = async (req, res) => {
   const { cartItems, deliveryAddress, paymentMethod } = req.body;
-  if (!cartItems || cartItems.length === 0) return res.status(400).json({ message: 'Cart is empty' });
-  if (!paymentMethod) return res.status(400).json({ message: 'Payment method is required.' });
+  if (!cartItems || cartItems.length === 0)
+    return res.status(400).json({ message: 'Cart is empty' });
+  if (!paymentMethod)
+    return res.status(400).json({ message: 'Payment method is required.' });
 
   try {
     const isPaymentSuccessful = simulatePayment(paymentMethod);
@@ -139,6 +154,7 @@ const createOrderFromCart = async (req, res) => {
     }, {});
 
     const createdOrders = [];
+
     for (const pharmacyId in pharmacyGroups) {
       const items = pharmacyGroups[pharmacyId];
       const medicineIds = items.map(item => item._id);
@@ -147,9 +163,15 @@ const createOrderFromCart = async (req, res) => {
       let totalAmount = 0;
       const orderMedicines = items.map(item => {
         const medInDb = medicinesInDb.find(m => m._id.toString() === item._id);
-        if (!medInDb || medInDb.quantity < item.quantity) throw new Error(`Insufficient stock for ${item.name}`);
+        if (!medInDb || medInDb.quantity < item.quantity)
+          throw new Error(`Insufficient stock for ${item.name}`);
         totalAmount += medInDb.price * item.quantity;
-        return { medicineId: medInDb._id, name: medInDb.name, quantity: item.quantity, price: medInDb.price };
+        return {
+          medicineId: medInDb._id,
+          name: medInDb.name,
+          quantity: item.quantity,
+          price: medInDb.price,
+        };
       });
 
       const order = new Order({
@@ -160,7 +182,9 @@ const createOrderFromCart = async (req, res) => {
         totalAmount,
         paymentMethod,
         status: isPaymentSuccessful ? 'Approved' : 'Payment Failed',
-        paymentStatus: isPaymentSuccessful ? (paymentMethod === 'COD' ? 'Pending' : 'Completed') : 'Failed',
+        paymentStatus: isPaymentSuccessful
+          ? (paymentMethod === 'COD' ? 'Pending' : 'Completed')
+          : 'Failed',
       });
 
       const createdOrder = await order.save();
@@ -174,7 +198,8 @@ const createOrderFromCart = async (req, res) => {
       createdOrders.push(createdOrder);
     }
 
-    if (!isPaymentSuccessful) return res.status(402).json({ message: "Payment failed. Please try again.", orders: createdOrders });
+    if (!isPaymentSuccessful)
+      return res.status(402).json({ message: "Payment failed. Please try again.", orders: createdOrders });
 
     res.status(201).json({ message: "Order(s) placed successfully!", orders: createdOrders });
 
@@ -185,7 +210,7 @@ const createOrderFromCart = async (req, res) => {
 };
 
 // ==========================
-// Get orders for logged-in user
+// Get Orders for Logged-in User
 // ==========================
 const getMyOrders = async (req, res) => {
   try {
@@ -194,8 +219,8 @@ const getMyOrders = async (req, res) => {
     else if (req.user.role === 'DeliveryPartner') query.deliveryPartner = req.user._id;
 
     const orders = await Order.find(query)
-      .populate('pharmacy', 'name')
-      .populate('customer', 'name')
+      .populate('pharmacy', 'shopName location address')
+      .populate('customer', 'name location address')
       .sort({ createdAt: -1 });
 
     res.json(orders);
@@ -205,7 +230,7 @@ const getMyOrders = async (req, res) => {
 };
 
 // ==========================
-// Get incoming orders for a pharmacy
+// Get Orders for Pharmacy
 // ==========================
 const getPharmacyOrders = async (req, res) => {
   try {
@@ -223,7 +248,7 @@ const getPharmacyOrders = async (req, res) => {
 };
 
 // ==========================
-// Update order status
+// Update Order Status
 // ==========================
 const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
@@ -234,43 +259,51 @@ const updateOrderStatus = async (req, res) => {
     const pharmacyStatuses = ['Approved', 'Rejected', 'Ready for Delivery', 'Cancelled'];
     const partnerStatuses = ['Accepted by Partner', 'Out for Delivery'];
 
+    // --- Pharmacy Actions ---
     if (req.user.role === 'Pharmacy' && pharmacyStatuses.includes(status)) {
       if (order.pharmacy.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized' });
 
       if (status === 'Approved' && order.status === 'Pending') {
-        for (const item of order.medicines) await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
+        for (const item of order.medicines)
+          await Medicine.findByIdAndUpdate(item.medicineId, { $inc: { quantity: -item.quantity } });
       }
 
       order.status = status;
 
       if (status === 'Ready for Delivery') {
-        const availablePartner = await DeliveryPartner.findOne({ isOnline: true });
-        if (availablePartner) {
-          order.deliveryPartner = availablePartner.user;
+        const activeOrders = await Order.find({ status: { $in: ['Accepted by Partner', 'Out for Delivery'] } });
+        const activePartnerIds = activeOrders.map(o => o.deliveryPartner);
+
+        const availablePartners = await DeliveryPartner.find({ isOnline: true, user: { $nin: activePartnerIds } });
+        if (availablePartners.length > 0) {
+          const randomIndex = Math.floor(Math.random() * availablePartners.length);
+          const selectedPartner = availablePartners[randomIndex];
+          order.deliveryPartner = selectedPartner.user;
 
           const pharmacyProfile = await Pharmacy.findOne({ user: order.pharmacy });
           const customerProfile = await User.findById(order.customer);
 
           if (pharmacyProfile && customerProfile) {
-            order.eta = calculateETA(
-              pharmacyProfile.location.coordinates,
-              customerProfile.location.coordinates
-            );
+            order.eta = calculateETA(pharmacyProfile.location.coordinates, customerProfile.location.coordinates);
           }
 
           order.deliveryOtp = Math.floor(1000 + Math.random() * 9000).toString();
           const updatedOrder = await order.save();
 
           const io = req.app.get('io');
-          io.to(availablePartner.user.toString()).emit('new_assignment', updatedOrder);
-
+          io.to(selectedPartner.user.toString()).emit('new_assignment', updatedOrder);
           return res.json(updatedOrder);
+        } else {
+          await order.save();
+          return res.status(200).json({ ...order.toObject(), message: "Order is ready, but no free delivery partners are available." });
         }
       }
     }
 
+    // --- Delivery Partner Actions ---
     if (req.user.role === 'DeliveryPartner' && partnerStatuses.includes(status)) {
-      if (order.deliveryPartner.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized' });
+      if (order.deliveryPartner?.toString() !== req.user._id.toString())
+        return res.status(403).json({ message: 'Not authorized for this order' });
       order.status = status;
     }
 
@@ -286,13 +319,14 @@ const updateOrderStatus = async (req, res) => {
 };
 
 // ==========================
-// Assign delivery partner manually
+// Assign Delivery Partner Manually
 // ==========================
 const assignDeliveryPartner = async (req, res) => {
   const { partnerId } = req.body;
   try {
     const order = await Order.findById(req.params.id);
-    if (!order || order.pharmacy.toString() !== req.user._id.toString()) return res.status(404).json({ message: 'Order not found or not authorized' });
+    if (!order || order.pharmacy.toString() !== req.user._id.toString())
+      return res.status(404).json({ message: 'Order not found or not authorized' });
 
     const pharmacyProfile = await Pharmacy.findOne({ user: order.pharmacy });
     const customerProfile = await User.findById(order.customer);
@@ -317,14 +351,15 @@ const assignDeliveryPartner = async (req, res) => {
 };
 
 // ==========================
-// Confirm delivery with OTP
+// Confirm Delivery via OTP
 // ==========================
 const confirmDelivery = async (req, res) => {
   const { otp } = req.body;
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    if (order.deliveryPartner.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized' });
+    if (order.deliveryPartner.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: 'Not authorized' });
     if (order.deliveryOtp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
 
     order.status = 'Delivered';
@@ -347,7 +382,8 @@ const processRefund = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found.' });
-    if (order.paymentStatus !== 'Completed') return res.status(400).json({ message: 'Only completed orders can be refunded.' });
+    if (order.paymentStatus !== 'Completed')
+      return res.status(400).json({ message: 'Only completed orders can be refunded.' });
 
     order.status = 'Cancelled';
     order.paymentStatus = 'Refunded';
@@ -365,16 +401,15 @@ const processRefund = async (req, res) => {
 };
 
 // ==========================
-// Download PDF Invoice
+// Download Invoice
 // ==========================
 const downloadInvoice = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('customer', 'name address');
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    if (order.customer._id.toString() !== req.user.id.toString()) {
+    if (order.customer._id.toString() !== req.user.id.toString())
       return res.status(403).json({ message: 'Not authorized to access this invoice' });
-    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
@@ -386,29 +421,26 @@ const downloadInvoice = async (req, res) => {
 };
 
 // ==========================
-// Get Real-time Tracking Details
+// Real-Time Order Tracking
 // ==========================
 const getOrderTrackingDetails = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate('customer', 'name location address')
-      .populate({
-        path: 'pharmacy',
-        select: 'name pharmacyProfile',
-        populate: { path: 'pharmacyProfile', select: 'shopName location address' },
-      })
+      .populate({ path: 'customer', select: 'name location address' })
+      .populate({ path: 'pharmacy', select: 'shopName location address' })
       .populate('deliveryPartner', 'name location');
 
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     const isCustomer = order.customer?._id.toString() === req.user.id.toString();
     const isAssignedPartner = order.deliveryPartner?._id.toString() === req.user.id.toString();
-    if (!isCustomer && !isAssignedPartner) return res.status(403).json({ message: 'Not authorized to view this order' });
+    if (!isCustomer && !isAssignedPartner)
+      return res.status(403).json({ message: 'Not authorized' });
 
     const trackingData = {
       status: order.status,
       eta: order.eta || 'Calculating...',
-      pharmacyLocation: order.pharmacy?.pharmacyProfile?.location || null,
+      pharmacyLocation: order.pharmacy?.location || null,
       deliveryPartnerLocation: order.deliveryPartner?.location || null,
       customerLocation: order.customer?.location || null,
     };
@@ -420,6 +452,9 @@ const getOrderTrackingDetails = async (req, res) => {
   }
 };
 
+// ==========================
+// Module Exports
+// ==========================
 module.exports = {
   createPrescriptionOrder,
   updatePrescriptionOrder,

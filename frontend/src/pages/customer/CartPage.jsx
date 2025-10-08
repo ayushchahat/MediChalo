@@ -53,7 +53,7 @@ const CartPage = () => {
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const deliveryFee = 5;
+  const deliveryFee = 25;
   const total = subtotal + deliveryFee;
 
   return (

@@ -5,13 +5,18 @@ const router = express.Router();
 const {
   getProfile,
   updateProfile,
-  updateUserLocation,  // ✅ add import here
+  updateUserLocation,
   updateOnboarding,
-  updateDeliveryStatus
+  updateDeliveryStatus,
+  updatePharmacyProfile, // ✅ import the new controller
 } = require('../controllers/userController');
 
 const { protect, hasRole } = require('../middleware/authMiddleware');
 const { uploadDocs } = require('../middleware/uploadMiddleware');
+
+// -------------------------
+// USER PROFILE ROUTES
+// -------------------------
 
 // @route   GET /api/users/profile
 // @desc    Get the profile of the logged-in user, including role-specific details.
@@ -23,11 +28,14 @@ router.get('/profile', protect, getProfile);
 // @access  Private (Customer)
 router.put('/profile', protect, hasRole(['Customer']), updateProfile);
 
-// ✅ NEW: Route for updating user location
 // @route   PUT /api/users/location
 // @desc    Update the logged-in user's location
 // @access  Private (All roles)
 router.put('/location', protect, updateUserLocation);
+
+// -------------------------
+// ONBOARDING ROUTES
+// -------------------------
 
 // @route   PUT /api/users/onboarding
 // @desc    Handle the onboarding form submission for Pharmacy and Delivery Partners.
@@ -48,6 +56,21 @@ router.put(
   protect,
   hasRole(['DeliveryPartner']),
   updateDeliveryStatus
+);
+
+// -------------------------
+// PHARMACY PROFILE ROUTE
+// -------------------------
+
+// @route   PUT /api/users/pharmacy-profile
+// @desc    Update an existing pharmacy profile
+// @access  Private (Pharmacy)
+router.put(
+  '/pharmacy-profile',
+  protect,
+  hasRole(['Pharmacy']),
+  uploadDocs, // Re-use the onboarding file uploader
+  updatePharmacyProfile
 );
 
 module.exports = router;

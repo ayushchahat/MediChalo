@@ -1,0 +1,160 @@
+/* Container */
+.profile-page-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+.profile-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
+.profile-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+.profile-header p {
+    margin: 0.2rem 0 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+.edit-toggle-btn {
+    margin-left: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+.edit-toggle-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Details Grid */
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.detail-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+.detail-card h4 {
+    margin-top: 0;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+.detail-card p {
+    margin: 0.4rem 0;
+}
+.document-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.3rem 0;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+}
+.document-link:hover {
+    text-decoration: underline;
+}
+
+/* Edit Form */
+.profile-edit-form {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.form-group label {
+    font-weight: 500;
+}
+.form-group input[type="text"],
+.form-group input[type="time"],
+.form-group input[type="file"] {
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+}
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.time-inputs input[type="time"] {
+    width: 120px;
+}
+
+/* Save Button */
+.save-btn {
+    align-self: flex-start;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+.save-btn:hover {
+    background-color: #1e7e34;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+    .time-inputs input[type="time"] {
+        width: 100%;
+    }
+}

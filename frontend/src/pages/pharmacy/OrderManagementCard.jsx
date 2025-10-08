@@ -128,7 +128,7 @@ const OrderManagementCard = ({ order, onUpdate }) => {
                         <div className="omc-prescription-details">
                             <h4>Prescription Uploaded</h4>
                             <a
-                                href={`https://medichalo-backend.onrender.com/${order.prescriptionImage}`}
+                                href={`http://localhost:5000/${order.prescriptionImage}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-view-prescription"

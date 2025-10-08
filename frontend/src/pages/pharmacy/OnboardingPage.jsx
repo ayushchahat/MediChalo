@@ -10,19 +10,36 @@ const OnboardingPage = () => {
         start: '09:00',
         end: '18:00',
         offDays: [],
-        latitude: '',    // ✅ added
-        longitude: ''    // ✅ added
+        // NEW: Nested address object instead of lat/lng
+        address: {
+            street: '',
+            city: '',
+            state: '',
+            zipCode: '',
+        }
     });
     const [files, setFiles] = useState({
         license: null,
         gst: null,
         logo: null
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    // NEW: Handler for the nested address state
+    const handleAddressChange = (e) => {
+        setFormData({
+            ...formData,
+            address: {
+                ...formData.address,
+                [e.target.name]: e.target.value
+            }
+        });
     };
 
     const handleFileChange = (e) => {
@@ -40,15 +57,17 @@ const OnboardingPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setIsSubmitting(true);
         const submissionData = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (key === 'offDays') {
-                submissionData.append(key, JSON.stringify(value));
-            } else {
-                submissionData.append(key, value);
-            }
-        });
+
+        // Append all form data, stringifying objects
+        submissionData.append('shopName', formData.shopName);
+        submissionData.append('start', formData.start);
+        submissionData.append('end', formData.end);
+        submissionData.append('offDays', JSON.stringify(formData.offDays));
+        // Stringify the address object to send it as a single field
+        submissionData.append('address', JSON.stringify(formData.address)); 
+        
         Object.entries(files).forEach(([key, value]) => {
             if (value) submissionData.append(key, value);
         });
@@ -61,6 +80,8 @@ const OnboardingPage = () => {
             navigate('/pharmacy/dashboard');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to create profile.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -75,28 +96,24 @@ const OnboardingPage = () => {
                         <input type="text" name="shopName" onChange={handleChange} required />
                     </div>
 
-                    {/* ✅ Latitude and Longitude */}
+                    {/* UPDATED: Full Address Form */}
                     <div className="form-group">
-                        <label htmlFor="latitude">Shop Latitude</label>
-                        <input
-                            type="text"
-                            name="latitude"
-                            placeholder="e.g., 8.5241"
-                            value={formData.latitude}
-                            onChange={handleChange}
-                            required
-                        />
+                        <label htmlFor="street">Street Address</label>
+                        <input type="text" name="street" placeholder="e.g., 123 MG Road" value={formData.address.street} onChange={handleAddressChange} required />
+                    </div>
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="city">City</label>
+                            <input type="text" name="city" placeholder="e.g., Thiruvananthapuram" value={formData.address.city} onChange={handleAddressChange} required />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="state">State</label>
+                            <input type="text" name="state" placeholder="e.g., Kerala" value={formData.address.state} onChange={handleAddressChange} required />
+                        </div>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="longitude">Shop Longitude</label>
-                        <input
-                            type="text"
-                            name="longitude"
-                            placeholder="e.g., 76.9366"
-                            value={formData.longitude}
-                            onChange={handleChange}
-                            required
-                        />
+                        <label htmlFor="zipCode">Zip Code</label>
+                        <input type="text" name="zipCode" placeholder="e.g., 695001" value={formData.address.zipCode} onChange={handleAddressChange} required />
                     </div>
 
                     <div className="form-group">
@@ -112,12 +129,7 @@ const OnboardingPage = () => {
                         <label>Weekly Off Days</label>
                         <div className="days-selector">
                             {weekDays.map(day => (
-                                <button
-                                    type="button"
-                                    key={day}
-                                    className={`day-btn ${formData.offDays.includes(day) ? 'selected' : ''}`}
-                                    onClick={() => handleDayToggle(day)}
-                                >
+                                <button type="button" key={day} className={`day-btn ${formData.offDays.includes(day) ? 'selected' : ''}`} onClick={() => handleDayToggle(day)}>
                                     {day.substring(0, 3)}
                                 </button>
                             ))}
@@ -128,18 +140,18 @@ const OnboardingPage = () => {
                         <label>License Document (PDF/Image)</label>
                         <input type="file" name="license" onChange={handleFileChange} required accept="image/*,application/pdf"/>
                     </div>
-
                     <div className="form-group">
                         <label>GST Document (PDF/Image)</label>
                         <input type="file" name="gst" onChange={handleFileChange} required accept="image/*,application/pdf"/>
                     </div>
-
                     <div className="form-group">
                         <label>Shop Logo (Optional)</label>
                         <input type="file" name="logo" onChange={handleFileChange} accept="image/*"/>
                     </div>
 
-                    <button type="submit" className="submit-btn">Save and Continue</button>
+                    <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                        {isSubmitting ? 'Saving...' : 'Save and Continue'}
+                    </button>
                 </form>
             </div>
         </div>
@@ -147,3 +159,4 @@ const OnboardingPage = () => {
 };
 
 export default OnboardingPage;
+

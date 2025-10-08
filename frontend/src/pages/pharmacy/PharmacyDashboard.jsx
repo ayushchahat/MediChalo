@@ -60,25 +60,24 @@ const PharmacyDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setSalesData(generateDummySalesData());
-    }, 3600000); // 1 hour
+    }, 3600000);
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return <div className="loading-spinner">Loading Dashboard...</div>;
-  }
+  if (loading) return <div className="loading-spinner">Loading Dashboard...</div>;
+  if (!stats || !profile) return <div>Could not load dashboard data. Please try again later.</div>;
 
-  if (!stats || !profile) {
-    return <div>Could not load dashboard data. Please try again later.</div>;
-  }
+  // Safe access to shop name and user name
+  const shopName = profile.pharmacyProfile?.shopName || 'Pharmacy Dashboard';
+  const userName = profile.user?.name || user?.name || 'Pharmacist';
 
   return (
     <div className="pharmacy-dashboard">
       <header className="pd-header">
         <div className="pd-header-left">
-          <h1>{profile.pharmacyProfile?.shopName || 'Pharmacy Dashboard'}</h1>
+          <h1>{shopName}</h1>
           <p className="pd-subtitle">
-            Welcome back, {user?.name}! <br />
+            Welcome back, {userName}! <br />
           </p>
         </div>
         <div className="pd-quick-actions">
@@ -95,11 +94,11 @@ const PharmacyDashboard = () => {
       </header>
 
       <div className="metric-cards-grid">
-        <MetricCard icon={<FaBoxes />} title="Total Stock" value={stats.totalStock} />
-        <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`₹${stats.todaysSales.toFixed(2)}`} />
-        <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders} />
-        <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems} />
-        <MetricCard icon={<FaUserFriends />} title="Total Customers" value={stats.totalCustomers || 0} />
+        <MetricCard icon={<FaBoxes />} title="Total Stock" value={stats.totalStock ?? 0} />
+        <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`₹${(stats.todaysSales ?? 0).toFixed(2)}`} />
+        <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders ?? 0} />
+        <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems ?? 0} />
+        <MetricCard icon={<FaUserFriends />} title="Total Customers" value={stats.totalCustomers ?? 0} />
       </div>
 
       <div className="dashboard-widgets-grid">
@@ -109,7 +108,7 @@ const PharmacyDashboard = () => {
         </div>
         <div className="widget-card">
           <h3>Recent Orders</h3>
-          <RecentOrdersTable orders={stats.recentOrders} />
+          <RecentOrdersTable orders={stats.recentOrders ?? []} />
         </div>
       </div>
     </div>

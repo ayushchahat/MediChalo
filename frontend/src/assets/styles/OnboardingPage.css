@@ -3,6 +3,7 @@
     justify-content: center;
     padding: 2rem 1rem;
 }
+
 .onboarding-card {
     width: 100%;
     max-width: 700px;
@@ -10,39 +11,102 @@
     padding: 2rem;
     border-radius: 12px;
 }
+
 .onboarding-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
-.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.form-group label { font-weight: 600; }
-.form-group input[type="text"], .form-group input[type="file"], .form-group input[type="time"] {
+
+/* Form groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group input[type="time"] {
     padding: 0.8rem;
     border: 1px solid var(--border-color);
     border-radius: 6px;
 }
-.time-inputs { display: flex; align-items: center; gap: 1rem; }
-.days-selector { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Two-column layout for address row */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Working hours input layout */
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Day selector buttons */
+.days-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 .day-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
     border: 1px solid var(--border-color);
-    background: transparent;
+    background-color: transparent;
     border-radius: 20px;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
+
+.day-btn:hover {
+    background-color: var(--hover-bg, #f2f2f2);
+}
+
 .day-btn.selected {
-    background: var(--primary-color);
+    background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
 }
+
+/* Submit button */
 .submit-btn {
-    padding: 1rem;
-    background: var(--primary-color);
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 1.1rem;
     cursor: pointer;
     margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-dark, #0056b3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .onboarding-card {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .submit-btn {
+        font-size: 0.95rem;
+    }
 }
