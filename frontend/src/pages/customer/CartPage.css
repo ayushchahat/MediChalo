@@ -23,6 +23,51 @@
 }
 
 /* ===========================
+   DELIVERY ADDRESS SECTION
+=========================== */
+.delivery-address-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.delivery-address-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.address-display {
+    background-color: #eff6ff;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.dark .address-display { background-color: #1e293b; }
+
+.address-display p { margin: 0; }
+.address-display button { background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: 600; }
+
+.address-actions {
+    display: flex;
+    gap: 1rem;
+}
+.address-actions button {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* ===========================
    CART ITEMS PANEL
 =========================== */
 .cart-items-panel h3,
@@ -89,11 +134,11 @@
 }
 
 .quantity-btn.minus:hover {
-    background-color: #e53935; /* red for minus */
+    background-color: #e53935;
 }
 
 .quantity-btn.plus:hover {
-    background-color: #43a047; /* green for plus */
+    background-color: #43a047;
 }
 
 .quantity-value {
@@ -254,5 +299,9 @@
     .cart-item-actions {
         align-self: flex-end;
         margin-top: 0.5rem;
+    }
+
+    .address-actions {
+        flex-direction: column;
     }
 }

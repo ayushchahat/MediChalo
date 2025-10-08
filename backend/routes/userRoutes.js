@@ -5,10 +5,11 @@ const router = express.Router();
 const {
   getProfile,
   updateProfile,
+  updateUserAddress,      // ✅ new controller for updating address
   updateUserLocation,
   updateOnboarding,
   updateDeliveryStatus,
-  updatePharmacyProfile, // ✅ import the new controller
+  updatePharmacyProfile,
 } = require('../controllers/userController');
 
 const { protect, hasRole } = require('../middleware/authMiddleware');
@@ -27,6 +28,11 @@ router.get('/profile', protect, getProfile);
 // @desc    Update profile (Customer only)
 // @access  Private (Customer)
 router.put('/profile', protect, hasRole(['Customer']), updateProfile);
+
+// @route   PUT /api/users/address
+// @desc    Update address manually (Customer only)
+// @access  Private (Customer)
+router.put('/address', protect, hasRole(['Customer']), updateUserAddress);
 
 // @route   PUT /api/users/location
 // @desc    Update the logged-in user's location
@@ -69,7 +75,7 @@ router.put(
   '/pharmacy-profile',
   protect,
   hasRole(['Pharmacy']),
-  uploadDocs, // Re-use the onboarding file uploader
+  uploadDocs,
   updatePharmacyProfile
 );
 

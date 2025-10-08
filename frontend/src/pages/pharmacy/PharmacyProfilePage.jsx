@@ -88,7 +88,7 @@ const PharmacyProfilePage = () => {
     if (!profile || !profile.pharmacyProfile) return <div>Profile not found.</div>;
 
     const { pharmacyProfile, email } = profile;
-    const serverUrl = 'https://medichalo-backend.onrender.com/';
+    const serverUrl = 'http://localhost:5000/';
 
     const logoUrl = pharmacyProfile.logoPath
         ? `${serverUrl}${pharmacyProfile.logoPath.replace(/\\/g, '/')}`

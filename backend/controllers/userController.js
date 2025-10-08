@@ -5,7 +5,6 @@ const DeliveryPartner = require('../models/DeliveryPartner');
 /* -----------------------------------
    DUMMY GEOCODING FUNCTION
 ----------------------------------- */
-// In a real-world app, integrate Google Maps or Mapbox API for accurate geocoding
 const geocodeAddress = (address) => {
   console.log("Simulating geocoding for address:", address);
   const baseLongitude = 76.9366; // Example longitude
@@ -78,6 +77,35 @@ const updateProfile = async (req, res) => {
 };
 
 /* -----------------------------------
+   UPDATE USER ADDRESS (Customer)
+----------------------------------- */
+const updateUserAddress = async (req, res) => {
+  const { street, city, state, zipCode } = req.body;
+  if (!street || !city || !state || !zipCode) {
+    return res.status(400).json({ message: 'All address fields are required.' });
+  }
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const fullAddress = { street, city, state, zipCode };
+    user.address = fullAddress;
+
+    // Geocode the new address
+    const coordinates = geocodeAddress(fullAddress);
+    user.location = { type: 'Point', coordinates };
+    user.locationCaptured = true;
+
+    await user.save();
+    res.json({ message: 'Address updated successfully.', address: user.address });
+  } catch (error) {
+    console.error("ADDRESS UPDATE ERROR:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/* -----------------------------------
    UPDATE USER LOCATION
 ----------------------------------- */
 const updateUserLocation = async (req, res) => {
@@ -112,7 +140,6 @@ const updateOnboarding = async (req, res) => {
   const user = req.user;
 
   try {
-    /* ---- PHARMACY ONBOARDING ---- */
     if (user.role === 'Pharmacy') {
       const { shopName, start, end, offDays, address } = req.body;
 
@@ -128,7 +155,7 @@ const updateOnboarding = async (req, res) => {
         {
           shopName,
           workingHours: { start, end },
-          offDays: JSON.parse(offDays || '[]'),
+          offDays: offDays ? JSON.parse(offDays) : [],
           address: parsedAddress,
           location: { type: 'Point', coordinates },
           licensePath: req.files.license[0].path,
@@ -145,14 +172,11 @@ const updateOnboarding = async (req, res) => {
       });
     }
 
-    /* ---- DELIVERY PARTNER ONBOARDING ---- */
-    else if (user.role === 'DeliveryPartner') {
+    if (user.role === 'DeliveryPartner') {
       const { vehicleDetails } = req.body;
 
       if (!req.files || !req.files.drivingLicense || !req.files.vehicleRegistration) {
-        return res.status(400).json({
-          message: 'Driving license and vehicle registration are required.',
-        });
+        return res.status(400).json({ message: 'Driving license and vehicle registration are required.' });
       }
 
       const deliveryProfile = await DeliveryPartner.findOneAndUpdate(
@@ -191,9 +215,7 @@ const updateDeliveryStatus = async (req, res) => {
       { new: true }
     );
 
-    if (!deliveryProfile) {
-      return res.status(404).json({ message: 'Delivery partner profile not found.' });
-    }
+    if (!deliveryProfile) return res.status(404).json({ message: 'Delivery partner profile not found.' });
 
     res.json({
       message: `Status updated to ${isOnline ? 'Online' : 'Offline'}.`,
@@ -211,20 +233,18 @@ const updateDeliveryStatus = async (req, res) => {
 const updatePharmacyProfile = async (req, res) => {
   try {
     const pharmacyProfile = await Pharmacy.findOne({ user: req.user.id });
-    if (!pharmacyProfile) {
-      return res.status(404).json({ message: 'Pharmacy profile not found.' });
-    }
+    if (!pharmacyProfile) return res.status(404).json({ message: 'Pharmacy profile not found.' });
 
     const { shopName, start, end, offDays, address } = req.body;
 
     if (shopName) pharmacyProfile.shopName = shopName;
     if (start && end) pharmacyProfile.workingHours = { start, end };
-    if (offDays) pharmacyProfile.offDays = JSON.parse(offDays);
+    if (offDays) pharmacyProfile.offDays = offDays ? JSON.parse(offDays) : pharmacyProfile.offDays;
 
     if (address) {
       const parsedAddress = JSON.parse(address);
       pharmacyProfile.address = parsedAddress;
-      // In a real app, you would re-geocode here if needed
+      // Optional: re-geocode if needed
     }
 
     if (req.files) {
@@ -235,7 +255,6 @@ const updatePharmacyProfile = async (req, res) => {
 
     const updatedProfile = await pharmacyProfile.save();
     res.json(updatedProfile);
-
   } catch (error) {
     console.error("PHARMACY PROFILE UPDATE ERROR:", error);
     res.status(500).json({ message: 'Server error' });
@@ -248,6 +267,7 @@ const updatePharmacyProfile = async (req, res) => {
 module.exports = {
   getProfile,
   updateProfile,
+  updateUserAddress,
   updateUserLocation,
   updateOnboarding,
   updateDeliveryStatus,
