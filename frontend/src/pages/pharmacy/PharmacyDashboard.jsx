@@ -87,9 +87,6 @@ const PharmacyDashboard = () => {
           <Link to="/pharmacy/orders" className="action-btn primary">
             View Orders
           </Link>
-          <Link to="/pharmacy/profile" className="action-btn secondary">
-            Profile
-          </Link>
         </div>
       </header>
 
@@ -98,7 +95,7 @@ const PharmacyDashboard = () => {
         <MetricCard icon={<FaChartLine />} title="Today's Sales" value={`₹${(stats.todaysSales ?? 0).toFixed(2)}`} />
         <MetricCard icon={<FaClipboardList />} title="Pending Orders" value={stats.pendingOrders ?? 0} />
         <MetricCard icon={<FaExclamationTriangle />} title="Low Stock Items" value={stats.lowStockItems ?? 0} />
-        <MetricCard icon={<FaUserFriends />} title="Total Customers" value={stats.totalCustomers ?? 0} />
+        <MetricCard icon={<FaUserFriends />} title="Total Orders" value={stats.totalCustomers ?? 0} />
       </div>
 
       <div className="dashboard-widgets-grid">

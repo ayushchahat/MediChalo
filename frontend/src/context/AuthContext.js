@@ -1,48 +1,70 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { jwtDecode } from 'jwt-decode'; // corrected import
 import api from '../api/axiosConfig';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        // Check if token is expired
-        if (decoded.exp * 1000 < Date.now()) {
-          logout();
-        } else {
-          setUser({ id: decoded.id, role: decoded.role });
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // Logout function
+    const logout = useCallback(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+        setToken(null);
+        delete api.defaults.headers.common['Authorization'];
+    }, []);
+
+    // Fetch user profile and validate token
+    const fetchAndUpdateUser = useCallback(async () => {
+        const currentToken = localStorage.getItem('token');
+        if (!currentToken) {
+            setLoading(false);
+            return;
         }
-      } catch (error) {
-        console.error("Invalid token:", error);
-        logout();
-      }
-    }
-  }, [token]);
 
-  const login = (newToken) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-  };
+        try {
+            const decoded = jwtDecode(currentToken); // ✅ use named import
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setToken(null);
-    delete api.defaults.headers.common['Authorization'];
-  };
+            // Check if token is expired
+            if (decoded.exp * 1000 < Date.now()) {
+                console.warn("Token expired, logging out...");
+                logout();
+                return;
+            }
 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+            // Set default authorization header
+            api.defaults.headers.common['Authorization'] = `Bearer ${currentToken}`;
+
+            // Fetch user profile
+            const { data } = await api.get('/users/profile');
+            setUser(data);
+        } catch (error) {
+            console.error("Failed to fetch user profile:", error);
+            logout();
+        } finally {
+            setLoading(false);
+        }
+    }, [logout]);
+
+    // Fetch profile whenever token changes
+    useEffect(() => {
+        fetchAndUpdateUser();
+    }, [token, fetchAndUpdateUser]);
+
+    // Login function
+    const login = (newToken) => {
+        localStorage.setItem('token', newToken);
+        setToken(newToken); // triggers fetchAndUpdateUser
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, token, loading, login, logout, fetchAndUpdateUser }}>
+            {!loading && children}
+        </AuthContext.Provider>
+    );
 };
 
 export default AuthContext;

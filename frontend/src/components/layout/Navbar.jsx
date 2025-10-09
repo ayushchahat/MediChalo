@@ -4,7 +4,16 @@ import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
 import CartContext from '../../context/CartContext';
-import { FaMoon, FaSun, FaShoppingCart, FaClipboardList, FaBoxes, FaTimes, FaBars } from 'react-icons/fa';
+import {
+  FaMoon,
+  FaSun,
+  FaShoppingCart,
+  FaClipboardList,
+  FaBoxes,
+  FaTimes,
+  FaBars,
+  FaUserCircle,
+} from 'react-icons/fa';
 import medichaloLogo from '../../assets/images/medichalo-logo.jpeg';
 import './Navbar.css';
 
@@ -16,12 +25,15 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const serverUrl = 'https://medichalo-backend.onrender.com/';
 
   const handleLogout = () => {
     logout();
     navigate('/login');
     setIsMobileMenuOpen(false);
   };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const getDashboardLink = () => {
     if (!user) return '/';
@@ -39,7 +51,19 @@ const Navbar = () => {
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  // Determine profile link based on role
+  const getProfileLink = () => {
+    switch (user?.role) {
+      case 'Customer':
+        return '/customer/profile';
+      case 'Pharmacy':
+        return '/pharmacy/profile';
+      case 'DeliveryPartner':
+        return '/delivery/profile';
+      default:
+        return '/';
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -55,10 +79,11 @@ const Navbar = () => {
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </div>
 
-        {/* Nav Links */}
+        {/* Nav Menu */}
         <div className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           {user ? (
             <>
+              {/* Dashboard */}
               <Link to={getDashboardLink()} className="nav-item" onClick={closeMobileMenu}>
                 {t('dashboard')}
               </Link>
@@ -80,13 +105,47 @@ const Navbar = () => {
               {user.role === 'Pharmacy' && (
                 <>
                   <Link to="/pharmacy/inventory" className="nav-item" onClick={closeMobileMenu}>
-                    <FaBoxes /> Manage Inventory
+                    <FaBoxes /> Inventory
                   </Link>
                   <Link to="/pharmacy/orders" className="nav-item" onClick={closeMobileMenu}>
-                    <FaClipboardList /> View Orders
+                    <FaClipboardList /> Orders
                   </Link>
                 </>
               )}
+
+              {/* Delivery Partner Links */}
+              {user.role === 'DeliveryPartner' && (
+                <Link to="/delivery/orders" className="nav-item" onClick={closeMobileMenu}>
+                  
+                </Link>
+              )}
+
+              {/* Language & Theme */}
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="nav-item language-select"
+              >
+                <option value="en">EN</option>
+                <option value="hi">HI</option>
+              </select>
+
+              <button onClick={toggleTheme} className="theme-toggle">
+                {theme === 'light' ? <FaMoon /> : <FaSun />}
+              </button>
+
+              {/* Profile (Always Last) */}
+              <Link to={getProfileLink()} className="nav-item profile-link" onClick={closeMobileMenu}>
+                {user.profileImage && user.profileImage !== '/uploads/default-avatar.png' ? (
+                  <img
+                    src={`${serverUrl}${user.profileImage.replace(/\\/g, '/')}`}
+                    alt="Profile"
+                    className="nav-profile-img"
+                  />
+                ) : (
+                  <FaUserCircle className="nav-profile-icon" />
+                )}
+              </Link>
 
               <button onClick={handleLogout} className="nav-item nav-button-logout">
                 {t('logout')}
@@ -102,20 +161,6 @@ const Navbar = () => {
               </Link>
             </>
           )}
-
-          {/* Controls */}
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="nav-item language-select"
-          >
-            <option value="en">EN</option>
-            <option value="hi">HI</option>
-          </select>
-
-          <button onClick={toggleTheme} className="theme-toggle">
-            {theme === 'light' ? <FaMoon /> : <FaSun />}
-          </button>
         </div>
       </div>
     </nav>

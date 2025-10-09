@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../api/axiosConfig';
@@ -11,58 +11,31 @@ import '../../assets/styles/AuthForm.css';
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuth();
+    const { login, user } = useAuth();
     const navigate = useNavigate();
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [loginResponseData, setLoginResponseData] = useState(null);
 
-    /**
-     * Handles final redirection after login
-     * Checks onboarding completion and navigates to correct dashboard
-     */
-    const proceedToApp = (data) => {
-        const role = data.role.toLowerCase();
+    // 🔹 Redirect when user is updated
+    useEffect(() => {
+        if (user && loginResponseData) {
+            const role = loginResponseData.role.toLowerCase();
 
-        if (role === 'pharmacy' && !data.pharmacyProfile?.onboardingComplete) {
-            navigate('/pharmacy/onboarding');
-        } else if (role === 'deliverypartner' && !data.deliveryProfile?.onboardingComplete) {
-            navigate('/delivery/onboarding');
-        } else {
-            // Map role to dashboard path
-            let pathRole = role;
-            if (role === 'deliverypartner') pathRole = 'delivery';
-            navigate(`/${pathRole}/dashboard`);
-        }
-    };
-
-    /**
-     * Form submission handler
-     * Logs in the user and handles location capture modal
-     */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const { data } = await api.post('/auth/login', { email, password });
-
-            // Save JWT token
-            login(data.token);
-            toast.success('Logged in successfully!');
-
-            if (!data.locationCaptured) {
-                // Show modal if location not captured
-                setLoginResponseData(data);
-                setShowLocationModal(true);
+            if (role === 'pharmacy' && !loginResponseData.pharmacyProfile?.onboardingComplete) {
+                navigate('/pharmacy/onboarding');
+            } else if (role === 'deliverypartner' && !loginResponseData.deliveryProfile?.onboardingComplete) {
+                navigate('/delivery/onboarding');
             } else {
-                proceedToApp(data);
+                let pathRole = role;
+                if (role === 'deliverypartner') pathRole = 'delivery';
+                navigate(`/${pathRole}/dashboard`);
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Login failed');
         }
-    };
+    }, [user, loginResponseData, navigate]);
 
     /**
-     * Handles user's response to location permission modal
+     * Handles location permission modal response
      */
     const handleLocationPermission = (granted) => {
         setShowLocationModal(false);
@@ -77,16 +50,38 @@ const LoginPage = () => {
                     } catch (err) {
                         toast.error('Could not save location. Proceeding anyway.');
                     }
-                    proceedToApp(loginResponseData);
                 },
                 () => {
                     toast.warn('Could not get location. You can set it later.');
-                    proceedToApp(loginResponseData);
                 }
             );
         } else {
             toast.info('You can set your location in your profile later.');
-            proceedToApp(loginResponseData);
+        }
+    };
+
+    /**
+     * Handles login form submission
+     */
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await api.post('/auth/login', { email, password });
+
+            // Save JWT token (triggers AuthContext to fetch user)
+            login(data.token);
+
+            // Store data for redirect once user state updates
+            setLoginResponseData(data);
+
+            toast.success('Logged in successfully!');
+
+            // Show location modal if location not captured
+            if (!data.locationCaptured) {
+                setShowLocationModal(true);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Login failed');
         }
     };
 

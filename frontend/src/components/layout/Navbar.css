@@ -50,7 +50,7 @@
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .nav-item {
@@ -64,21 +64,6 @@
   padding: 0.5rem 0;
   position: relative;
   transition: color 0.3s ease;
-}
-
-.nav-item:not(.nav-button)::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-
-.nav-item:not(.nav-button):hover::after {
-  width: 100%;
 }
 
 .nav-item:hover {
@@ -128,6 +113,31 @@
   font-size: 0.75rem;
   font-weight: bold;
   border: 2px solid var(--card-bg-color);
+}
+
+/* Profile Image */
+.profile-link {
+  display: flex;
+  align-items: center;
+}
+
+.nav-profile-img {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav-profile-img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.nav-profile-icon {
+  font-size: 1.8rem;
+  color: var(--text-color);
 }
 
 /* Controls */
@@ -192,5 +202,14 @@
 
   .cart-badge {
     right: 15px;
+  }
+
+  .nav-profile-img {
+    height: 45px;
+    width: 45px;
+  }
+
+  .nav-profile-icon {
+    font-size: 2rem;
   }
 }

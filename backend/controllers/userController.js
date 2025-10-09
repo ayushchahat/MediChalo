@@ -39,40 +39,77 @@ const getProfile = async (req, res) => {
 };
 
 /* -----------------------------------
-   UPDATE CUSTOMER PROFILE
+   UPDATE PROFILE (ALL USERS)
+   Handles name, phone, address & image
 ----------------------------------- */
 const updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (user.role !== 'Customer') {
-      return res.status(403).json({ message: 'Not allowed for this role' });
-    }
-
     user.name = req.body.name || user.name;
     user.phone = req.body.phone || user.phone;
 
     if (req.body.address) {
-      user.address = {
-        street: req.body.address.street || user.address.street,
-        city: req.body.address.city || user.address.city,
-        state: req.body.address.state || user.address.state,
-        zipCode: req.body.address.zipCode || user.address.zipCode,
-      };
+      try {
+        user.address = typeof req.body.address === 'string'
+          ? JSON.parse(req.body.address)
+          : req.body.address;
+      } catch {
+        return res.status(400).json({ message: 'Invalid address format. Must be JSON.' });
+      }
+    }
+
+    if (req.file) {
+      user.profileImage = req.file.path; // or req.file.location for S3
     }
 
     const updatedUser = await user.save();
     res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      phone: updatedUser.phone,
-      address: updatedUser.address,
+      message: "Profile updated successfully.",
+      user: updatedUser
     });
   } catch (error) {
     console.error("PROFILE UPDATE ERROR:", error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/* -----------------------------------
+   UPDATE DELIVERY PARTNER PROFILE
+----------------------------------- */
+const updateDeliveryProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const deliveryProfile = await DeliveryPartner.findOne({ user: req.user.id });
+
+    if (!user || !deliveryProfile) {
+      return res.status(404).json({ message: 'Profile not found.' });
+    }
+
+    // Update User fields
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    if (req.files && req.files.profileImage) {
+      user.profileImage = req.files.profileImage[0].path;
+    }
+
+    // Update DeliveryPartner fields
+    deliveryProfile.vehicleDetails = req.body.vehicleDetails || deliveryProfile.vehicleDetails;
+    if (req.files && req.files.drivingLicense) {
+      deliveryProfile.drivingLicensePath = req.files.drivingLicense[0].path;
+    }
+    if (req.files && req.files.vehicleRegistration) {
+      deliveryProfile.vehicleRegistrationPath = req.files.vehicleRegistration[0].path;
+    }
+
+    await user.save();
+    await deliveryProfile.save();
+
+    res.json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.error("DELIVERY PROFILE UPDATE ERROR:", error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -92,7 +129,6 @@ const updateUserAddress = async (req, res) => {
     const fullAddress = { street, city, state, zipCode };
     user.address = fullAddress;
 
-    // Geocode the new address
     const coordinates = geocodeAddress(fullAddress);
     user.location = { type: 'Point', coordinates };
     user.locationCaptured = true;
@@ -110,7 +146,6 @@ const updateUserAddress = async (req, res) => {
 ----------------------------------- */
 const updateUserLocation = async (req, res) => {
   const { latitude, longitude } = req.body;
-
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ message: 'Latitude and longitude are required.' });
   }
@@ -142,7 +177,6 @@ const updateOnboarding = async (req, res) => {
   try {
     if (user.role === 'Pharmacy') {
       const { shopName, start, end, offDays, address } = req.body;
-
       if (!req.files || !req.files.license || !req.files.gst) {
         return res.status(400).json({ message: 'License and GST documents are required.' });
       }
@@ -174,7 +208,6 @@ const updateOnboarding = async (req, res) => {
 
     if (user.role === 'DeliveryPartner') {
       const { vehicleDetails } = req.body;
-
       if (!req.files || !req.files.drivingLicense || !req.files.vehicleRegistration) {
         return res.status(400).json({ message: 'Driving license and vehicle registration are required.' });
       }
@@ -236,7 +269,6 @@ const updatePharmacyProfile = async (req, res) => {
     if (!pharmacyProfile) return res.status(404).json({ message: 'Pharmacy profile not found.' });
 
     const { shopName, start, end, offDays, address } = req.body;
-
     if (shopName) pharmacyProfile.shopName = shopName;
     if (start && end) pharmacyProfile.workingHours = { start, end };
     if (offDays) pharmacyProfile.offDays = offDays ? JSON.parse(offDays) : pharmacyProfile.offDays;
@@ -244,7 +276,6 @@ const updatePharmacyProfile = async (req, res) => {
     if (address) {
       const parsedAddress = JSON.parse(address);
       pharmacyProfile.address = parsedAddress;
-      // Optional: re-geocode if needed
     }
 
     if (req.files) {
@@ -267,6 +298,7 @@ const updatePharmacyProfile = async (req, res) => {
 module.exports = {
   getProfile,
   updateProfile,
+  updateDeliveryProfile,
   updateUserAddress,
   updateUserLocation,
   updateOnboarding,

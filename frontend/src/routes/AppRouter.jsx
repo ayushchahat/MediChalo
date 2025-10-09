@@ -9,6 +9,8 @@ import Navbar from '../components/layout/Navbar';
 import HomePage from '../pages/public/HomePage';
 import LoginPage from '../pages/public/LoginPage';
 import SignupPage from '../pages/public/SignupPage';
+import ForgotPasswordPage from '../pages/public/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/public/ResetPasswordPage';
 
 // ======================
 // Customer Pages
@@ -16,13 +18,14 @@ import SignupPage from '../pages/public/SignupPage';
 import CustomerDashboard from '../pages/customer/CustomerDashboard';
 import OrderHistoryPage from '../pages/customer/OrderHistoryPage';
 import CartPage from '../pages/customer/CartPage';
-import TrackOrderPage from '../pages/customer/TrackOrderPage'; // Track Order page
+import TrackOrderPage from '../pages/customer/TrackOrderPage';
+import CustomerProfilePage from '../pages/customer/CustomerProfilePage';
 
 // ======================
 // Pharmacy Pages
 // ======================
 import PharmacyDashboard from '../pages/pharmacy/PharmacyDashboard';
-import PharmacyProfilePage from '../pages/pharmacy/PharmacyProfilePage'; // NEW: Profile page
+import PharmacyProfilePage from '../pages/pharmacy/PharmacyProfilePage';
 import OnboardingPage from '../pages/pharmacy/OnboardingPage';
 import AddMedicinePage from '../pages/pharmacy/AddMedicinePage';
 import InventoryPage from '../pages/pharmacy/InventoryPage';
@@ -35,7 +38,8 @@ import DeliveryDashboard from '../pages/delivery/DeliveryDashboard';
 import DeliveryOnboardingPage from '../pages/delivery/OnboardingPage';
 import DeliveryHistoryPage from '../pages/delivery/HistoryPage';
 import DeliveryEarningsPage from '../pages/delivery/EarningsPage';
-import DeliveryTrackOrderPage from '../pages/delivery/DeliveryTrackOrderPage'; // Tracking page
+import DeliveryTrackOrderPage from '../pages/delivery/DeliveryTrackOrderPage';
+import DeliveryProfilePage from '../pages/delivery/DeliveryProfilePage'; // ✅ New Import
 
 const AppRouter = () => {
   return (
@@ -43,27 +47,25 @@ const AppRouter = () => {
       <Navbar />
       <main className="container">
         <Routes>
-          {/* ======================
-              Public Routes
-          ====================== */}
+          {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-          {/* ======================
-              Protected Routes
-          ====================== */}
+          {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-
             {/* Customer Routes */}
             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
             <Route path="/customer/orders" element={<OrderHistoryPage />} />
+            <Route path="/customer/profile" element={<CustomerProfilePage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/track-order/:orderId" element={<TrackOrderPage />} />
 
             {/* Pharmacy Routes */}
             <Route path="/pharmacy/dashboard" element={<PharmacyDashboard />} />
-            <Route path="/pharmacy/profile" element={<PharmacyProfilePage />} /> {/* NEW */}
+            <Route path="/pharmacy/profile" element={<PharmacyProfilePage />} />
             <Route path="/pharmacy/onboarding" element={<OnboardingPage />} />
             <Route path="/pharmacy/add-medicine" element={<AddMedicinePage />} />
             <Route path="/pharmacy/inventory" element={<InventoryPage />} />
@@ -75,7 +77,7 @@ const AppRouter = () => {
             <Route path="/delivery/history" element={<DeliveryHistoryPage />} />
             <Route path="/delivery/earnings" element={<DeliveryEarningsPage />} />
             <Route path="/delivery/track/:orderId" element={<DeliveryTrackOrderPage />} />
-
+            <Route path="/delivery/profile" element={<DeliveryProfilePage />} /> {/* ✅ New Route */}
           </Route>
 
           {/* Catch-all 404 */}

@@ -1,40 +1,79 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is imported
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-const DeliveryOrderMap = ({ pharmacyLocation, customerLocation }) => {
-    // Define the path for the polyline, connecting the two locations
-    const routeCoordinates = [pharmacyLocation, customerLocation];
+// Fix default marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
-    // Define styling options for the route line
-    const routeOptions = { color: '#1d4ed8', weight: 5, opacity: 0.7 };
+// Fit map to bounds
+const FitBounds = ({ coords }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        const validCoords = coords.filter(
+            (c) => Array.isArray(c) && c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])
+        );
+        if (validCoords.length > 0) {
+            map.fitBounds(L.latLngBounds(validCoords), { padding: [50, 50] });
+        }
+    }, [coords, map]);
+
+    return null;
+};
+
+const DeliveryOrderMap = ({ pharmacyCoords, customerCoords, deliveryPartnerCoords, routeCoords }) => {
+    // Prepare markers
+    const markers = [];
+
+    if (pharmacyCoords?.length === 2 && !isNaN(pharmacyCoords[0]) && !isNaN(pharmacyCoords[1])) {
+        markers.push({ position: pharmacyCoords, label: 'Pharmacy' });
+    }
+
+    if (deliveryPartnerCoords?.length === 2 && !isNaN(deliveryPartnerCoords[0]) && !isNaN(deliveryPartnerCoords[1])) {
+        markers.push({ position: deliveryPartnerCoords, label: 'Delivery Partner' });
+    }
+
+    if (customerCoords?.length === 2 && !isNaN(customerCoords[0]) && !isNaN(customerCoords[1])) {
+        markers.push({ position: customerCoords, label: 'Customer' });
+    }
+
+    // Default center
+    const defaultCenter = [20.5937, 78.9629];
+    const center = markers.length > 0 ? markers[0].position : defaultCenter;
 
     return (
         <MapContainer
-            bounds={routeCoordinates} // Automatically zoom and center to fit both points
-            boundsOptions={{ padding: [50, 50] }} // Add padding around the bounds
+            center={center}
+            zoom={13}
+            scrollWheelZoom={true}
             style={{ height: '100%', width: '100%' }}
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution="&copy; OpenStreetMap contributors"
             />
-            
-            {/* Marker for the pharmacy location */}
-            <Marker position={pharmacyLocation}>
-                <Popup>Pickup From: Pharmacy</Popup>
-            </Marker>
-            
-            {/* Marker for the customer location */}
-            <Marker position={customerLocation}>
-                <Popup>Deliver To: Customer</Popup>
-            </Marker>
+            {markers.map((m, idx) => (
+                <Marker key={idx} position={m.position}>
+                    <Popup>{m.label}</Popup>
+                </Marker>
+            ))}
 
-            {/* NEW: Polyline to draw the route on the map */}
-            <Polyline pathOptions={routeOptions} positions={routeCoordinates} />
+            {routeCoords && routeCoords.length > 0 && (
+                <Polyline positions={routeCoords} color="blue" weight={4} />
+            )}
+
+            <FitBounds coords={markers.map(m => m.position)} />
         </MapContainer>
     );
 };
 
 export default DeliveryOrderMap;
-

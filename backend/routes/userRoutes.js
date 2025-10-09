@@ -1,19 +1,23 @@
-// backend/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 
 const {
   getProfile,
   updateProfile,
-  updateUserAddress,      // ✅ new controller for updating address
+  updateUserAddress,
   updateUserLocation,
   updateOnboarding,
   updateDeliveryStatus,
   updatePharmacyProfile,
+  updateDeliveryProfile, // ✅ new
 } = require('../controllers/userController');
 
 const { protect, hasRole } = require('../middleware/authMiddleware');
-const { uploadDocs } = require('../middleware/uploadMiddleware');
+const {
+  uploadDocs,
+  uploadProfileImage,
+  uploadDeliveryFiles, // ✅ new
+} = require('../middleware/uploadMiddleware');
 
 // -------------------------
 // USER PROFILE ROUTES
@@ -25,9 +29,15 @@ const { uploadDocs } = require('../middleware/uploadMiddleware');
 router.get('/profile', protect, getProfile);
 
 // @route   PUT /api/users/profile
-// @desc    Update profile (Customer only)
+// @desc    Update profile (Customer only) — supports image upload
 // @access  Private (Customer)
-router.put('/profile', protect, hasRole(['Customer']), updateProfile);
+router.put(
+  '/profile',
+  protect,
+  hasRole(['Customer']),
+  uploadProfileImage,
+  updateProfile
+);
 
 // @route   PUT /api/users/address
 // @desc    Update address manually (Customer only)
@@ -77,6 +87,21 @@ router.put(
   hasRole(['Pharmacy']),
   uploadDocs,
   updatePharmacyProfile
+);
+
+// -------------------------
+// DELIVERY PARTNER PROFILE ROUTE
+// -------------------------
+
+// @route   PUT /api/users/delivery-profile
+// @desc    Update an existing delivery partner profile
+// @access  Private (DeliveryPartner)
+router.put(
+  '/delivery-profile',
+  protect,
+  hasRole(['DeliveryPartner']),
+  uploadDeliveryFiles,
+  updateDeliveryProfile
 );
 
 module.exports = router;

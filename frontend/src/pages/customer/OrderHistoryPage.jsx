@@ -10,6 +10,7 @@ const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('All');
+    const DELIVERY_CHARGE = 25; // Fixed delivery charge
 
     // Fetch Orders
     useEffect(() => {
@@ -86,6 +87,7 @@ const OrderHistoryPage = () => {
             <div className="orders-list">
                 {filteredOrders.map(order => {
                     const isInvoiceDisabled = ['Pending', 'Rejected', 'Cancelled', 'Payment Failed'].includes(order.status);
+                    const totalWithDelivery = order.totalAmount + DELIVERY_CHARGE;
 
                     return (
                         <div key={order._id} className="order-card">
@@ -107,7 +109,7 @@ const OrderHistoryPage = () => {
                             <div className="order-card-body">
                                 {order.prescriptionImage ? (
                                     <div className="prescription-order-info">
-                                        <p>This is a prescription-based order. Items are being reviewed by the pharmacy.</p>
+                                        <p>This is a prescription-based order. Items have been reviewed by the pharmacy.</p>
                                         <a
                                             href={`https://medichalo-backend.onrender.com/${order.prescriptionImage.replace(/\\/g, '/')}`}
                                             target="_blank"
@@ -132,7 +134,9 @@ const OrderHistoryPage = () => {
 
                             {/* Footer */}
                             <div className="order-card-footer">
-                                <span className="order-total">Total: ₹{order.totalAmount.toFixed(2)}</span>
+                                <span className="order-total">
+                                    Total: ₹{totalWithDelivery.toFixed(2)}
+                                </span>
                                 <div className="footer-actions">
                                     {order.eta && ['Accepted by Partner', 'Out for Delivery'].includes(order.status) && (
                                         <span className="order-eta">ETA: {formatTime(order.eta)}</span>
