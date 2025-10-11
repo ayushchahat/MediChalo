@@ -14,6 +14,7 @@ const MedicineSearch = ({ customerLocation, onResults }) => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    console.log('Search clicked:', searchTerm); // DEBUG
 
     if (!searchTerm.trim()) {
       toast.info('Please enter a medicine name to search.');
@@ -27,6 +28,7 @@ const MedicineSearch = ({ customerLocation, onResults }) => {
 
     try {
       const { data } = await api.get(`/inventory/search?keyword=${encodeURIComponent(searchTerm)}`);
+      console.log('API response:', data); // DEBUG
       setResults(data);
       onResults && onResults(data);
 

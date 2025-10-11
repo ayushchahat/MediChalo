@@ -20,7 +20,6 @@ const PharmacyProfilePage = () => {
             const { data } = await api.get('/users/profile');
             setProfile(data);
 
-            // Initialize edit form if pharmacyProfile exists
             if (data.pharmacyProfile) {
                 setEditData({
                     shopName: data.pharmacyProfile.shopName || '',
@@ -52,7 +51,6 @@ const PharmacyProfilePage = () => {
         e.preventDefault();
         const submissionData = new FormData();
 
-        // Append text fields
         submissionData.append('shopName', editData.shopName);
         submissionData.append('start', editData.start);
         submissionData.append('end', editData.end);
@@ -65,7 +63,6 @@ const PharmacyProfilePage = () => {
         };
         submissionData.append('address', JSON.stringify(address));
 
-        // Append files
         Object.entries(files).forEach(([key, value]) => {
             if (value) submissionData.append(key, value);
         });
@@ -98,13 +95,15 @@ const PharmacyProfilePage = () => {
         <div className="profile-page-container">
             <div className="profile-header">
                 <img src={logoUrl} alt="Shop Logo" className="profile-logo" />
-                <div>
+                <div className="profile-info">
                     <h1>{pharmacyProfile.shopName || 'Unnamed Shop'}</h1>
                     <p>{email || 'No email provided'}</p>
                 </div>
-                <button onClick={() => setIsEditMode(!isEditMode)} className="edit-toggle-btn">
-                    {isEditMode ? <><FaTimes /> Cancel</> : <><FaEdit /> Edit Profile</>}
-                </button>
+                <div className="edit-btn-container">
+                    <button onClick={() => setIsEditMode(!isEditMode)} className="edit-toggle-btn">
+                        {isEditMode ? <><FaTimes /> Cancel</> : <><FaEdit /> Edit</>}
+                    </button>
+                </div>
             </div>
 
             {isEditMode ? (

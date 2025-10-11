@@ -1,4 +1,6 @@
+/* ------------------------ */
 /* Navbar Container */
+/* ------------------------ */
 .navbar {
   background-color: var(--card-bg-color);
   border-bottom: 1px solid var(--border-color);
@@ -10,6 +12,7 @@
   display: flex;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .nav-container {
@@ -21,7 +24,9 @@
   margin: 0 auto;
 }
 
+/* ------------------------ */
 /* Logo */
+/* ------------------------ */
 .nav-logo-link {
   display: flex;
   align-items: center;
@@ -46,11 +51,14 @@
   color: transparent;
 }
 
+/* ------------------------ */
 /* Nav Menu */
+/* ------------------------ */
 .nav-menu {
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: color 0.3s;
 }
 
 .nav-item {
@@ -70,7 +78,9 @@
   color: var(--primary-color);
 }
 
+/* ------------------------ */
 /* Buttons */
+/* ------------------------ */
 .nav-button {
   padding: 0.6rem 1.2rem;
   background-color: var(--primary-color);
@@ -92,7 +102,9 @@
   border: none;
 }
 
+/* ------------------------ */
 /* Cart */
+/* ------------------------ */
 .cart-icon-link {
   position: relative;
   font-size: 1.4rem;
@@ -115,7 +127,9 @@
   border: 2px solid var(--card-bg-color);
 }
 
+/* ------------------------ */
 /* Profile Image */
+/* ------------------------ */
 .profile-link {
   display: flex;
   align-items: center;
@@ -140,7 +154,9 @@
   color: var(--text-color);
 }
 
+/* ------------------------ */
 /* Controls */
+/* ------------------------ */
 .language-select {
   background-color: transparent;
   border: 1px solid var(--border-color);
@@ -165,15 +181,20 @@
   transform: rotate(15deg);
 }
 
+/* ------------------------ */
 /* Hamburger Icon */
+/* ------------------------ */
 .menu-icon {
   display: none;
   font-size: 2rem;
   cursor: pointer;
   color: var(--text-color);
+  z-index: 1100;
 }
 
+/* ------------------------ */
 /* Mobile Menu */
+/* ------------------------ */
 @media (max-width: 960px) {
   .menu-icon {
     display: block;
@@ -190,14 +211,14 @@
     background: var(--card-bg-color);
     padding-top: 5rem;
     gap: 2rem;
-    transition: right 0.3s ease, opacity 0.3s ease;
+    transition: right 0.3s ease;
     box-shadow: -4px 0 12px rgba(0,0,0,0.1);
-    z-index: 999;
+    z-index: 1000;
+    overflow-y: auto;
   }
 
   .nav-menu.active {
     right: 0;
-    opacity: 1;
   }
 
   .cart-badge {
@@ -212,4 +233,87 @@
   .nav-profile-icon {
     font-size: 2rem;
   }
+}
+
+/* ------------------------ */
+/* Dark Mode Support */
+/* ------------------------ */
+body.dark, .navbar.dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+body.dark a,
+body.dark .nav-item,
+body.dark .nav-logo-text,
+body.dark .language-select,
+body.dark .cart-badge,
+body.dark .nav-button,
+body.dark .theme-toggle,
+body.dark .nav-profile-icon {
+  color: #ffffff;
+}
+
+body.dark a:hover,
+body.dark .nav-item:hover,
+body.dark .nav-button:hover,
+body.dark .theme-toggle:hover {
+  color: #10b981;
+}
+
+body.dark .nav-logo-img,
+body.dark .nav-profile-img {
+  border-color: #10b981;
+}
+
+body.dark .cart-badge {
+  border-color: #1a1a1a;
+}
+
+body.dark .nav-menu {
+  background-color: #1a1a1a;
+}
+
+/* Card and content adjustments for dark mode */
+body.dark .card,
+body.dark .medicine-card {
+  background-color: #1e293b;
+  color: #ffffff;
+  border-color: #334155;
+}
+
+body.dark .card p,
+body.dark .card span,
+body.dark .card h3 {
+  color: #ffffff;
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background-color: #1e293b;
+  color: #ffffff;
+  border-color: #334155;
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.dark .card button,
+body.dark .medicine-card button {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+body.dark .card button:hover,
+body.dark .medicine-card button:hover {
+  background-color: #10b981;
+}
+
+body.dark svg {
+  fill: #ffffff;
+  color: #ffffff;
 }

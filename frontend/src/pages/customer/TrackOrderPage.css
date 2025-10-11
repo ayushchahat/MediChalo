@@ -1,16 +1,20 @@
-/* ========== Track Order Page Container ========== */
+/* ===========================
+   TRACK ORDER PAGE CONTAINER
+=========================== */
 .track-order-page {
   max-width: 1000px;
   margin: 2rem auto;
   padding: 1.5rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--text-color);
-  background-color: var(--card-bg-color);
+  color: var(--text-color, #1f2937);
+  background-color: var(--card-bg-color, #ffffff);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* ========== Header Section ========== */
+/* ===========================
+   HEADER SECTION
+=========================== */
 .track-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -26,7 +30,9 @@
   opacity: 0.8;
 }
 
-/* ========== ETA Display ========== */
+/* ===========================
+   ETA DISPLAY
+=========================== */
 .eta-display {
   display: inline-flex;
   align-items: center;
@@ -35,7 +41,7 @@
   margin-top: 1rem;
   padding: 0.5rem 1rem;
   background-color: #eff6ff; /* Light blue */
-  color: var(--primary-color);
+  color: var(--primary-color, #3b82f6);
   border-radius: 50px;
   font-size: 1rem;
   font-weight: 500;
@@ -46,7 +52,9 @@
   color: #3b82f6;
 }
 
-/* ========== Timeline Section ========== */
+/* ===========================
+   TIMELINE SECTION
+=========================== */
 .order-timeline {
   display: flex;
   justify-content: space-between;
@@ -65,10 +73,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: color 0.3s;
 }
 
 .timeline-step.completed {
-  color: var(--primary-color);
+  color: var(--primary-color, #3b82f6);
+}
+
+.timeline-step svg {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .timeline-step::after {
@@ -78,50 +92,113 @@
   right: -50%;
   width: 100%;
   height: 2px;
-  background-color: #0de781; /* gray-300 */
+  background-color: #cbd5e1; /* gray-300 */
   z-index: -1;
+  transition: background-color 0.3s;
 }
 
 .timeline-step.completed::after {
-  background-color: var(--primary-color);
+  background-color: var(--primary-color, #3b82f6);
 }
 
 .timeline-step:last-child::after {
   content: none;
 }
 
-/* ========== Map Container ========== */
+/* ===========================
+   MAP CONTAINER
+=========================== */
 .order-map-container {
   width: 100%;
   height: 400px;
   border-radius: 12px;
   overflow: hidden;
   margin-top: 2rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color, #e5e7eb);
 }
 
-/* ========== Loading Spinner ========== */
+/* ===========================
+   LOADING SPINNER
+=========================== */
 .loading-spinner {
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
   font-weight: 500;
+  color: var(--text-color, #1f2937);
 }
 
-/* ========== Responsive ========== */
+/* ===========================
+   DARK MODE
+=========================== */
+.dark .track-order-page {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+.dark .timeline-step {
+  color: #9ca3af;
+}
+
+.dark .timeline-step.completed {
+  color: #3b82f6;
+}
+
+.dark .timeline-step::after {
+  background-color: #374151;
+}
+
+.dark .timeline-step.completed::after {
+  background-color: #3b82f6;
+}
+
+/* ===========================
+   MOBILE TIMELINE CORRECTION
+=========================== */
 @media (max-width: 768px) {
   .order-timeline {
     flex-direction: column;
     align-items: flex-start;
+    margin-left: 1rem; /* optional spacing from left */
   }
-  .timeline-step::after {
-    top: 100%;
-    left: 50%;
-    width: 2px;
-    height: 100%;
-    transform: translateX(-50%);
-  }
+
   .timeline-step {
+    flex: none;
+    text-align: left;
+    align-items: flex-start;
+    padding-left: 2rem;
+    position: relative;
     margin-bottom: 2rem;
+  }
+
+  /* Vertical connector line */
+  .timeline-step::after {
+    top: 2rem; /* below icon */
+    left: 1rem; /* align with icon center */
+    width: 2px;
+    height: calc(100% - 2rem);
+    transform: none;
+    background-color: #cbd5e1; /* default gray line */
+  }
+
+  .timeline-step.completed::after {
+    background-color: var(--primary-color, #3b82f6);
+  }
+
+  .timeline-step:last-child::after {
+    display: none;
+  }
+
+  /* Icon adjustment */
+  .timeline-step svg {
+    position: absolute;
+    left: 0; 
+    top: 0;
+    font-size: 1.5rem;
+  }
+
+  .timeline-step span {
+    margin-left: 2.5rem; /* text offset from icon */
+    font-weight: 500;
   }
 }

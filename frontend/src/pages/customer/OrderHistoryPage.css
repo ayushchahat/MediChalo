@@ -6,7 +6,8 @@
   margin: 2rem auto;
   padding: 1rem 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  color: var(--text-color, #333);
+  background-color: var(--card-bg-color, #fff);
 }
 
 .order-history-container h1 {
@@ -36,7 +37,8 @@
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   border: 1px solid #ccc;
-  background-color: #fff;
+  background-color: var(--card-bg-color, #fff);
+  color: var(--text-color, #333);
   cursor: pointer;
   transition: border 0.2s;
 }
@@ -58,10 +60,10 @@
 /* Order Card */
 /* ========================== */
 .order-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color, #ddd);
   border-radius: 12px;
   padding: 1.5rem;
-  background-color: #fff;
+  background-color: var(--card-bg-color, #fff);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -99,8 +101,8 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: var(--bg-secondary, #e5e7eb);
+  color: var(--text-secondary, #374151);
 }
 
 /* Status Tag Styling */
@@ -125,14 +127,8 @@
 /* ========================== */
 .order-card-body {
   margin-top: 0.5rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color, #eee);
   padding-top: 1rem;
-}
-
-.order-card-body h4 {
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-  color: #222;
 }
 
 .order-card-body ul {
@@ -143,12 +139,6 @@
 .order-card-body li {
   margin-bottom: 0.3rem;
   font-size: 0.9rem;
-}
-
-.order-date {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 0.8rem;
 }
 
 .prescription-order-info {
@@ -179,27 +169,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color, #eee);
   margin-top: 1rem;
   padding-top: 1rem;
   flex-wrap: wrap;
   gap: 0.8rem;
 }
 
-.total-amount {
+.order-total {
   font-weight: 600;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-color, #333);
 }
 
-.order-card-actions {
+.footer-actions {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
+/* Buttons */
 .track-order-btn,
-.invoice-btn {
+.download-invoice-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -223,19 +215,19 @@
   transform: translateY(-1px);
 }
 
-/* Invoice Download Button */
-.invoice-btn {
+/* Download Invoice Button */
+.download-invoice-btn {
   background-color: transparent;
-  border: 1px solid #ccc;
-  color: #333;
+  border: 1px solid var(--border-color, #ccc);
+  color: var(--text-color, #333);
 }
 
-.invoice-btn:hover:not(:disabled) {
-  background-color: #f9fafb;
+.download-invoice-btn:hover:not(:disabled) {
+  background-color: var(--bg-secondary, #f9fafb);
   transform: translateY(-1px);
 }
 
-.invoice-btn:disabled {
+.download-invoice-btn:disabled {
   background-color: #ddd;
   border-color: #ddd;
   color: #777;
@@ -245,12 +237,27 @@
 /* ========================== */
 /* Loading & Empty States */
 /* ========================== */
-.loading-text,
-.empty-text {
+.loading-spinner,
+.no-orders-card {
   text-align: center;
   margin-top: 2rem;
   font-size: 1rem;
-  color: #666;
+  color: var(--text-secondary, #666);
+}
+
+.shop-now-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background-color: var(--primary-color, #007bff);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.shop-now-btn:hover {
+  background-color: #0056b3;
 }
 
 /* ========================== */
@@ -272,13 +279,21 @@
     align-items: flex-start;
   }
 
-  .order-card-actions {
+  .footer-actions {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+    gap: 0.5rem;
   }
 
   .orders-list {
     grid-template-columns: 1fr;
+  }
+
+  .view-prescription-btn,
+  .track-order-btn,
+  .download-invoice-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

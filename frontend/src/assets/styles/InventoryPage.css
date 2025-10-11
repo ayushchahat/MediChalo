@@ -182,3 +182,25 @@
     border-radius: 8px;
 }
 
+/* --- Mobile Responsive Table --- */
+@media (max-width: 768px) {
+    .medicines-table thead th:nth-child(4), /* Price */
+    .medicines-table thead th:nth-child(5), /* Expiry Date */
+    .medicines-table tbody td:nth-child(4),
+    .medicines-table tbody td:nth-child(5) {
+        display: none;
+    }
+
+    /* Optional: make table horizontally scrollable on very small screens */
+    .medicines-table-container {
+        overflow-x: auto;
+    }
+}
+
+/* Optional: very small screens (480px) */
+@media (max-width: 480px) {
+    .medicines-table th, .medicines-table td {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+}

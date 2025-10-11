@@ -1,10 +1,44 @@
-/* ========== Customer Dashboard Container ========== */
+/* ========== Root Theme Variables ========== */
+:root {
+  --primary-color: #1a202c;
+  --accent-color: #007bff;
+  --text-color: #2d3748;
+  --background-color: #f9fafc;
+  --card-bg-color: #ffffff;
+  --border-color: #e5e7eb;
+  --transition-speed: 0.3s;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  --primary-color: #edf2f7;
+  --accent-color: #3399ff;
+  --text-color: #e2e8f0;
+  --background-color: #0f172a;
+  --card-bg-color: #1e293b;
+  --border-color: #334155;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #edf2f7;
+    --accent-color: #3399ff;
+    --text-color: #e2e8f0;
+    --background-color: #0f172a;
+    --card-bg-color: #1e293b;
+    --border-color: #334155;
+  }
+}
+
+/* ========== Global Dashboard Container ========== */
 .customer-dashboard {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 1.5rem;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Poppins', 'Arial', sans-serif;
   color: var(--text-color);
+  background: var(--background-color);
+  transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 /* ========== Header ========== */
@@ -13,24 +47,32 @@
   margin-bottom: 2.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color);
+  transition: all var(--transition-speed) ease;
 }
 
 .dashboard-header h1 {
-  font-size: 2.5rem;
+  font-size: 2.6rem;
   margin: 0 0 0.5rem 0;
-  color: var(--text-color);
+  color: var(--primary-color);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: color var(--transition-speed) ease;
+}
+
+.dashboard-header h1:hover {
+  color: var(--accent-color);
 }
 
 .dashboard-header p {
   font-size: 1.1rem;
   color: var(--text-color);
-  opacity: 0.8;
+  opacity: 0.85;
   max-width: 600px;
   margin: 0 auto;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* ========== Search + Upload ========== */
+/* ========== Search + Upload Section ========== */
 .dashboard-top-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -40,31 +82,50 @@
 
 .search-section,
 .prescription-section {
-  background-color: var(--card-bg-color);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--card-bg-color);
+  border-radius: 16px;
+  padding: 1.8rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-section::before,
+.prescription-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(0,123,255,0.05), rgba(0,123,255,0.15));
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.search-section:hover::before,
+.prescription-section:hover::before {
+  opacity: 1;
 }
 
 .search-section:hover,
 .prescription-section:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .search-section h2,
 .prescription-section h2 {
   font-size: 1.4rem;
-  margin-bottom: 0.8rem;
-  color: var(--text-color);
+  margin-bottom: 0.6rem;
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 .search-section p,
 .prescription-section p {
   font-size: 0.95rem;
   color: var(--text-color);
-  opacity: 0.85;
+  opacity: 0.9;
   margin-bottom: 1rem;
 }
 
@@ -74,9 +135,24 @@
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2.5rem;
+  padding: 0.5rem;
 }
 
-/* ========== Orders Section ========== */
+.medicines-grid > * {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.medicines-grid > *:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== Active Orders Section ========== */
+.dashboard-active-orders {
+  margin: 2.5rem 0;
+}
+
+/* ========== My Orders Section ========== */
 .dashboard-orders {
   margin-top: 3rem;
 }
@@ -84,6 +160,7 @@
 .dashboard-orders h2 {
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
+  color: var(--primary-color);
 }
 
 .orders-list-dashboard {
@@ -93,40 +170,55 @@
 }
 
 .order-card-dashboard {
-  background-color: var(--card-bg-color);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
+  background: var(--card-bg-color);
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.order-card-dashboard:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 24px rgba(0, 123, 255, 0.12);
 }
 
 .order-card-dashboard p {
   margin: 0;
   font-size: 0.95rem;
+  color: var(--text-color);
+  line-height: 1.4;
 }
 
+.order-card-dashboard strong {
+  color: var(--primary-color);
+}
+
+/* ========== Track Order Button ========== */
 .track-order-btn {
   margin-top: 0.8rem;
   display: inline-block;
-  padding: 0.6rem 1.2rem;
+  padding: 0.65rem 1.4rem;
   font-size: 0.95rem;
   color: #fff;
-  background-color: #007bff;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border-radius: 10px;
   text-decoration: none;
   text-align: center;
   font-weight: 500;
-  transition: all 0.2s ease-in-out;
   align-self: flex-start;
+  transition: all 0.25s ease-in-out;
 }
 
 .track-order-btn:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #0056b3, #00408d);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 86, 179, 0.3);
 }
-
 
 /* ========== Loading Spinner ========== */
 .loading-spinner {
@@ -134,30 +226,108 @@
   padding: 3rem;
   font-size: 1.2rem;
   font-weight: 500;
+  color: var(--primary-color);
   min-height: 150px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
-/* ========== Responsive ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== Responsive Design ========== */
 @media (max-width: 1024px) {
-  .dashboard-top-grid,
-  .orders-list-dashboard {
+  .dashboard-top-grid {
     grid-template-columns: 1fr;
+  }
+
+  .orders-list-dashboard {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
+  .customer-dashboard {
+    padding: 1rem;
+  }
+
   .dashboard-header h1 {
     font-size: 2rem;
+  }
+
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+
+  .dashboard-top-grid {
+    gap: 1rem;
+  }
+
+  .search-section,
+  .prescription-section {
+    padding: 1.2rem;
+  }
+
+  .order-card-dashboard {
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .dashboard-orders {
+    padding: 0.5rem;
+  }
+
+  .dashboard-orders h2 {
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .order-card-dashboard {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0.8rem 0;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--card-bg-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    overflow: hidden;
+  }
+
   .track-order-btn {
     display: block;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
     text-align: center;
     font-size: 1rem;
-    padding: 0.75rem;
-    align-self: center;
+    border-radius: 12px;
+    background: var(--accent-color);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .track-order-btn:hover {
+    background: #0056b3;
+    transform: scale(1.02);
   }
 }

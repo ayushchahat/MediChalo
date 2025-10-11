@@ -5,12 +5,13 @@
     max-width: 900px;
     margin: 2rem auto;
     padding: 1.5rem;
+    color: var(--text-color, #333);
 }
 
 .cart-page h1 {
     margin-bottom: 2rem;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color, #ddd);
     padding-bottom: 1rem;
 }
 
@@ -28,7 +29,7 @@
 .delivery-address-section {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color, #ddd);
 }
 
 .delivery-address-section h3 {
@@ -37,34 +38,53 @@
 }
 
 .address-display {
-    background-color: #eff6ff;
+    background-color: var(--bg-secondary, #eff6ff);
     padding: 1rem;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.dark .address-display { background-color: #1e293b; }
 
-.address-display p { margin: 0; }
-.address-display button { background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: 600; }
+.dark .address-display {
+    background-color: #1e293b;
+}
+
+.address-display p {
+    margin: 0;
+}
+
+.address-display button {
+    background: none;
+    border: none;
+    color: var(--primary-color, #007bff);
+    cursor: pointer;
+    font-weight: 600;
+}
 
 .address-actions {
     display: flex;
     gap: 1rem;
+    margin-top: 0.5rem;
 }
+
 .address-actions button {
     flex: 1;
     padding: 0.8rem;
     border-radius: 8px;
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--primary-color, #007bff);
     background-color: transparent;
-    color: var(--primary-color);
+    color: var(--primary-color, #007bff);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+}
+
+.address-actions button:hover {
+    background-color: var(--primary-color, #007bff);
+    color: white;
 }
 
 /* ===========================
@@ -75,7 +95,7 @@
     margin-top: 0;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color, #ddd);
 }
 
 .cart-items-list {
@@ -89,12 +109,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color, #fff);
+    border: 1px solid var(--border-color, #ddd);
     border-radius: 8px;
 }
 
-/* --- Item Details & Actions --- */
 .cart-item-info {
     display: flex;
     flex-direction: column;
@@ -120,7 +139,7 @@
 }
 
 .quantity-btn {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color, #007bff);
     color: white;
     border: none;
     width: 30px;
@@ -133,12 +152,8 @@
     transition: all 0.25s ease;
 }
 
-.quantity-btn.minus:hover {
-    background-color: #e53935;
-}
-
-.quantity-btn.plus:hover {
-    background-color: #43a047;
+.quantity-btn:hover {
+    opacity: 0.9;
 }
 
 .quantity-value {
@@ -152,16 +167,17 @@
 .remove-item-btn {
     background: none;
     border: none;
-    color: var(--error-color);
+    color: var(--error-color, #e53935);
     cursor: pointer;
+    font-size: 1.1rem;
 }
 
 /* ===========================
    SUMMARY & PAYMENT PANEL
 =========================== */
 .cart-summary-panel {
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color, #fff);
+    border: 1px solid var(--border-color, #ddd);
     border-radius: 12px;
     padding: 1.5rem;
     position: sticky;
@@ -178,7 +194,7 @@
 .summary-total {
     font-size: 1.2rem;
     font-weight: bold;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color, #ddd);
     padding-top: 1rem;
     margin-top: 1rem;
 }
@@ -201,19 +217,19 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border-color, #ddd);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .payment-option:hover {
-    border-color: var(--primary-color);
+    border-color: var(--primary-color, #007bff);
 }
 
 .payment-option.selected {
-    border-color: var(--primary-color);
-    background-color: #eff6ff;
+    border-color: var(--primary-color, #007bff);
+    background-color: var(--bg-secondary, #eff6ff);
 }
 
 .dark .payment-option.selected {
@@ -222,7 +238,7 @@
 
 .payment-option svg {
     font-size: 1.2rem;
-    color: var(--primary-color);
+    color: var(--primary-color, #007bff);
 }
 
 .payment-details-placeholder {
@@ -244,7 +260,7 @@
     padding: 0.9rem;
     font-size: 1rem;
     font-weight: 600;
-    background-color: var(--success-color);
+    background-color: var(--success-color, #16a34a);
     color: white;
     border: none;
     border-radius: 8px;
@@ -269,7 +285,7 @@
     display: inline-block;
     margin-top: 1rem;
     padding: 0.8rem 1.5rem;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color, #007bff);
     color: white;
     border: none;
     border-radius: 8px;
@@ -303,5 +319,9 @@
 
     .address-actions {
         flex-direction: column;
+    }
+
+    .place-order-btn {
+        margin-top: 1.5rem;
     }
 }

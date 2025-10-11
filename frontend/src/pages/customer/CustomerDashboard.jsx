@@ -111,7 +111,8 @@ const CustomerDashboard = () => {
             {t('Search for medicines and get them delivered quickly.') ||
               'Search for medicines and get them delivered quickly.'}
           </p>
-          <MedicineSearch onSearch={handleSearchResults} customerLocation={customerLocation} />
+          {/* ✅ Updated prop name to `onResults` */}
+          <MedicineSearch onResults={handleSearchResults} customerLocation={customerLocation} />
         </div>
 
         <div className="prescription-section">
