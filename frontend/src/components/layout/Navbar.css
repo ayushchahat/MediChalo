@@ -103,7 +103,7 @@
 }
 
 /* ------------------------ */
-/* Cart */
+/* Cart Badge */
 /* ------------------------ */
 .cart-icon-link {
   position: relative;
@@ -236,84 +236,28 @@
 }
 
 /* ------------------------ */
-/* Dark Mode Support */
+/* Bright / Dark Theme Support */
 /* ------------------------ */
-body.dark, .navbar.dark {
-  background-color: #1a1a1a;
-  color: #ffffff;
-  border-color: #333333;
+:root {
+  --card-bg-color: #ffffff;
+  --text-color: #1a1a1a;
+  --border-color: #e5e7eb;
+  --primary-color: #2563eb;
+  --error-color: #ef4444;
+  --background-color: #f9fafb;
 }
 
-body.dark a,
-body.dark .nav-item,
-body.dark .nav-logo-text,
-body.dark .language-select,
-body.dark .cart-badge,
-body.dark .nav-button,
-body.dark .theme-toggle,
-body.dark .nav-profile-icon {
-  color: #ffffff;
+body.dark {
+  --card-bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #333333;
+  --primary-color: #10b981;
+  --error-color: #f87171;
+  --background-color: #121212;
 }
 
-body.dark a:hover,
-body.dark .nav-item:hover,
-body.dark .nav-button:hover,
-body.dark .theme-toggle:hover {
-  color: #10b981;
-}
-
-body.dark .nav-logo-img,
-body.dark .nav-profile-img {
-  border-color: #10b981;
-}
-
-body.dark .cart-badge {
-  border-color: #1a1a1a;
-}
-
-body.dark .nav-menu {
-  background-color: #1a1a1a;
-}
-
-/* Card and content adjustments for dark mode */
-body.dark .card,
-body.dark .medicine-card {
-  background-color: #1e293b;
-  color: #ffffff;
-  border-color: #334155;
-}
-
-body.dark .card p,
-body.dark .card span,
-body.dark .card h3 {
-  color: #ffffff;
-}
-
-body.dark input,
-body.dark textarea,
-body.dark select {
-  background-color: #1e293b;
-  color: #ffffff;
-  border-color: #334155;
-}
-
-body.dark input::placeholder,
-body.dark textarea::placeholder {
-  color: #94a3b8;
-}
-
-body.dark .card button,
-body.dark .medicine-card button {
-  background-color: #2563eb;
-  color: #ffffff;
-}
-
-body.dark .card button:hover,
-body.dark .medicine-card button:hover {
-  background-color: #10b981;
-}
-
-body.dark svg {
-  fill: #ffffff;
-  color: #ffffff;
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
 }
