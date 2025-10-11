@@ -1,6 +1,28 @@
-/* ------------------------ */
-/* Navbar Container */
-/* ------------------------ */
+:root {
+  --card-bg-color: #ffffff;
+  --text-color: #1a1a1a;
+  --border-color: #e5e7eb;
+  --primary-color: #2563eb;
+  --error-color: #ef4444;
+  --background-color: #f9fafb;
+}
+
+body.dark {
+  --card-bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #333333;
+  --primary-color: #10b981;
+  --error-color: #f87171;
+  --background-color: #121212;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Navbar */
 .navbar {
   background-color: var(--card-bg-color);
   border-bottom: 1px solid var(--border-color);
@@ -24,9 +46,7 @@
   margin: 0 auto;
 }
 
-/* ------------------------ */
 /* Logo */
-/* ------------------------ */
 .nav-logo-link {
   display: flex;
   align-items: center;
@@ -51,9 +71,7 @@
   color: transparent;
 }
 
-/* ------------------------ */
 /* Nav Menu */
-/* ------------------------ */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -78,9 +96,7 @@
   color: var(--primary-color);
 }
 
-/* ------------------------ */
 /* Buttons */
-/* ------------------------ */
 .nav-button {
   padding: 0.6rem 1.2rem;
   background-color: var(--primary-color);
@@ -102,9 +118,7 @@
   border: none;
 }
 
-/* ------------------------ */
-/* Cart Badge */
-/* ------------------------ */
+/* Cart */
 .cart-icon-link {
   position: relative;
   font-size: 1.4rem;
@@ -127,9 +141,7 @@
   border: 2px solid var(--card-bg-color);
 }
 
-/* ------------------------ */
 /* Profile Image */
-/* ------------------------ */
 .profile-link {
   display: flex;
   align-items: center;
@@ -154,9 +166,7 @@
   color: var(--text-color);
 }
 
-/* ------------------------ */
 /* Controls */
-/* ------------------------ */
 .language-select {
   background-color: transparent;
   border: 1px solid var(--border-color);
@@ -181,9 +191,7 @@
   transform: rotate(15deg);
 }
 
-/* ------------------------ */
-/* Hamburger Icon */
-/* ------------------------ */
+/* Hamburger & Mobile */
 .menu-icon {
   display: none;
   font-size: 2rem;
@@ -192,9 +200,6 @@
   z-index: 1100;
 }
 
-/* ------------------------ */
-/* Mobile Menu */
-/* ------------------------ */
 @media (max-width: 960px) {
   .menu-icon {
     display: block;
@@ -233,31 +238,4 @@
   .nav-profile-icon {
     font-size: 2rem;
   }
-}
-
-/* ------------------------ */
-/* Bright / Dark Theme Support */
-/* ------------------------ */
-:root {
-  --card-bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --border-color: #e5e7eb;
-  --primary-color: #2563eb;
-  --error-color: #ef4444;
-  --background-color: #f9fafb;
-}
-
-body.dark {
-  --card-bg-color: #1a1a1a;
-  --text-color: #ffffff;
-  --border-color: #333333;
-  --primary-color: #10b981;
-  --error-color: #f87171;
-  --background-color: #121212;
-}
-
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s, color 0.3s;
 }

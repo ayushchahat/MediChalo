@@ -85,11 +85,7 @@ const Navbar = () => {
           className="nav-logo-link"
           onClick={closeMobileMenu}
         >
-          <img
-            src={medichaloLogo}
-            alt="MediChalo Logo"
-            className="nav-logo-img"
-          />
+          <img src={medichaloLogo} alt="MediChalo Logo" className="nav-logo-img" />
           <span className="nav-logo-text">MediChalo</span>
         </Link>
 
@@ -102,10 +98,7 @@ const Navbar = () => {
         </div>
 
         {/* Nav Menu */}
-        <div
-          ref={menuRef}
-          className={`nav-menu ${isMobileMenuOpen ? "active" : ""}`}
-        >
+        <div ref={menuRef} className={`nav-menu ${isMobileMenuOpen ? "active" : ""}`}>
           {user ? (
             <>
               <Link
@@ -158,19 +151,18 @@ const Navbar = () => {
               )}
 
               {user.role === "DeliveryPartner" && (
-  <div
-    className="nav-item"
-    onClick={() => {
-      // Replace this orderId with the actual one you want to track
-      const sampleOrderId = "68e698ba8264c5a823bb3c62";
-      navigate(`/delivery/track/${sampleOrderId}`);
-      setIsMobileMenuOpen(false);
-    }}
-    style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-  >
-    <FaClipboardList style={{ marginRight: "5px" }} /> Orders
-  </div>
-)}
+                <div
+                  className="nav-item"
+                  onClick={() => {
+                    const sampleOrderId = "68e698ba8264c5a823bb3c62";
+                    navigate(`/delivery/track/${sampleOrderId}`);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+                >
+                  <FaClipboardList style={{ marginRight: "5px" }} /> Orders
+                </div>
+              )}
 
               {/* Language */}
               <select
@@ -193,8 +185,7 @@ const Navbar = () => {
                 className="nav-item profile-link"
                 onClick={closeMobileMenu}
               >
-                {user.profileImage &&
-                user.profileImage !== "/uploads/default-avatar.png" ? (
+                {user.profileImage && user.profileImage !== "/uploads/default-avatar.png" ? (
                   <img
                     src={`${serverUrl}${user.profileImage.replace(/\\/g, "/")}`}
                     alt="Profile"
@@ -205,20 +196,13 @@ const Navbar = () => {
                 )}
               </Link>
 
-              <button
-                onClick={handleLogout}
-                className="nav-item nav-button-logout"
-              >
+              <button onClick={handleLogout} className="nav-item nav-button-logout">
                 {t("logout")}
               </button>
             </>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="nav-item nav-button"
-                onClick={closeMobileMenu}
-              >
+              <Link to="/login" className="nav-item nav-button" onClick={closeMobileMenu}>
                 Login
               </Link>
               <Link
