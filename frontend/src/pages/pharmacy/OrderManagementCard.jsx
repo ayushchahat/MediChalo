@@ -142,8 +142,7 @@ const OrderManagementCard = ({ order, onUpdate }) => {
                             <ul>
                                 {order.medicines.map((med) => (
                                     <li key={med.medicineId}>
-                                        {med.name} (Qty: {med.quantity}) -{' '}
-                                        <em>{med.status}</em>
+                                        {med.name} (Qty: {med.quantity})
                                     </li>
                                 ))}
                             </ul>
