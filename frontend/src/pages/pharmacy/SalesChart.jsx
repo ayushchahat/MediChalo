@@ -31,7 +31,7 @@ const SalesChart = ({ salesData = [] }) => {
         labels: salesData.map(d => d.date),
         datasets: [
             {
-                label: 'Sales ($)',
+                label: 'Sales (₹)',
                 // Use the 'totalSales' property for the y-axis data points
                 data: salesData.map(d => d.totalSales),
                 borderColor: 'rgba(37, 99, 235, 1)', // Primary blue color for the line
@@ -60,7 +60,7 @@ const SalesChart = ({ salesData = [] }) => {
                 callbacks: {
                     // Custom tooltip label to show sales with a dollar sign
                     label: function (context) {
-                        return ` Sales: $${context.parsed.y.toFixed(2)}`;
+                        return ` Sales: ₹${context.parsed.y.toFixed(2)}`;
                     }
                 }
             }
@@ -71,7 +71,7 @@ const SalesChart = ({ salesData = [] }) => {
                 ticks: {
                     // Format the y-axis labels to include a dollar sign
                     callback: function (value) {
-                        return '$' + value;
+                        return '₹' + value;
                     }
                 }
             },
