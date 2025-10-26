@@ -67,9 +67,9 @@ Traditional medicine delivery is often **slow, uncertain, and inconvenient**:
 
 MediChalo is built using a **modern, scalable MERN architecture**, enhanced with **AWS cloud services**.
 
-📘 *(System Design Diagram – place image in `/assets/architecture.png` and update path below)*
+📘 *(System Design Diagram – place image in `/SystemDesign.png` and update path below)*
 
-![System Architecture](./assets/architecture.png)
+![System Architecture](./SystemDesign.png)
 
 ### 🧠 Key Components
 
